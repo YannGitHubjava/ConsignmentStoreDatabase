@@ -1,9 +1,7 @@
 package com.KevinMcClean;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -42,8 +40,13 @@ public class CreateDatabase {
             return;
         }
         try {
-            createRecordStoreTable();
+            createRecordsInMainRoomTable();
             createConsignorTable();
+            createSalesTable();
+            createRecordsInBargainBasement();
+            createRecordsSoldTable();
+            createRecordsSentToCharityTable();
+            createRecordsReturnedTable();
         } catch (SQLException sqle) {
             System.err.println("Unable to create database. Error message and stack trace follow");
             System.err.println(sqle.getMessage() + " " + sqle.getErrorCode());
@@ -89,9 +92,9 @@ public class CreateDatabase {
         }
     }
 
-    private void createRecordStoreTable() throws SQLException {
-        String createRecordsTableSQL = "CREATE TABLE recordsInStore (recordID INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY, consignorID INT, artist VARCHAR(50), title VARCHAR(50), price FLOAT, consignmentDate DATE)";
-        String deleteTableSQL = "DROP TABLE recordsInStore";
+    private void createRecordsInMainRoomTable() throws SQLException {
+        String createRecordsTableSQL = "CREATE TABLE recordsInMainRoom (recordID INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY, consignorID INT, artist VARCHAR(50), title VARCHAR(50), price FLOAT, consignmentDate DATE)";
+        String deleteTableSQL = "DROP TABLE recordsInMainRoom";
 
         try {
             statement.executeUpdate(createRecordsTableSQL);
@@ -114,6 +117,139 @@ public class CreateDatabase {
             }
         }
     }
+
+    private void createRecordsInBargainBasement() throws SQLException {
+        String createRecordsTableSQL = "CREATE TABLE basementRecords (recordID INT, consignorID INT, artist VARCHAR(50), title VARCHAR(50), price FLOAT, consignmentDate DATE, basementDate DATE )";
+        String deleteTableSQL = "DROP TABLE basementRecords";
+
+        try {
+            statement.executeUpdate(createRecordsTableSQL);
+            System.out.println("Created basementRecords table");
+        } catch (SQLException sqle) {
+            //Seems the table already exists, or some other error has occurred.
+            //Let's try to check if the DB exists already by checking the error code returned. If so, delete it and re-create it
+            if (sqle.getSQLState().startsWith("X0")) {    //Error code for table already existing starts with XO
+                try {
+                    statement.executeUpdate(deleteTableSQL);
+                    statement.executeUpdate(createRecordsTableSQL);
+                    System.out.println("Deleted basementRecords Table");
+                    System.out.println("Created basementRecords table");
+                } catch (SQLException e) {
+                    //Still doesn't work. Throw the exception.
+                    throw e;
+                }
+            } else {
+                //do nothing - if the table exists, leave it be.
+            }
+        }
+    }
+
+    private void createRecordsSoldTable() throws SQLException {
+        String createRecordsTableSQL = "CREATE TABLE soldRecords (recordID INT, consignorID INT, salesID INT, artist VARCHAR(50), title VARCHAR(50), price FLOAT, consignmentDate DATE, salesDate DATE )";
+        String deleteTableSQL = "DROP TABLE soldRecords";
+
+        try {
+            statement.executeUpdate(createRecordsTableSQL);
+            System.out.println("Created soldRecords table");
+        } catch (SQLException sqle) {
+            //Seems the table already exists, or some other error has occurred.
+            //Let's try to check if the DB exists already by checking the error code returned. If so, delete it and re-create it
+            if (sqle.getSQLState().startsWith("X0")) {    //Error code for table already existing starts with XO
+                try {
+                    statement.executeUpdate(deleteTableSQL);
+                    statement.executeUpdate(createRecordsTableSQL);
+                    System.out.println("Deleted soldRecords Table");
+                    System.out.println("Created soldRecords table");
+                } catch (SQLException e) {
+                    //Still doesn't work. Throw the exception.
+                    throw e;
+                }
+            } else {
+                //do nothing - if the table exists, leave it be.
+            }
+        }
+    }
+
+    private void createRecordsSentToCharityTable() throws SQLException {
+        String createRecordsTableSQL = "CREATE TABLE charityRecords (recordID INT, consignorID INT, artist VARCHAR(50), title VARCHAR(50), price FLOAT, consignmentDate DATE, charityDate DATE )";
+        String deleteTableSQL = "DROP TABLE charityRecords";
+
+        try {
+            statement.executeUpdate(createRecordsTableSQL);
+            System.out.println("Created charityRecords table");
+        } catch (SQLException sqle) {
+            //Seems the table already exists, or some other error has occurred.
+            //Let's try to check if the DB exists already by checking the error code returned. If so, delete it and re-create it
+            if (sqle.getSQLState().startsWith("X0")) {    //Error code for table already existing starts with XO
+                try {
+                    statement.executeUpdate(deleteTableSQL);
+                    statement.executeUpdate(createRecordsTableSQL);
+                    System.out.println("Deleted charityRecords Table");
+                    System.out.println("Created charityRecords table");
+                } catch (SQLException e) {
+                    //Still doesn't work. Throw the exception.
+                    throw e;
+                }
+            } else {
+                //do nothing - if the table exists, leave it be.
+            }
+        }
+    }
+
+
+    private void createRecordsReturnedTable() throws SQLException {
+        String createRecordsTableSQL = "CREATE TABLE returnedRecords (recordID INT, consignorID INT, artist VARCHAR(50), title VARCHAR(50), price FLOAT, consignmentDate DATE, returnedDate DATE )";
+        String deleteTableSQL = "DROP TABLE returnedRecords";
+
+        try {
+            statement.executeUpdate(createRecordsTableSQL);
+            System.out.println("Created returnedRecords table");
+        } catch (SQLException sqle) {
+            //Seems the table already exists, or some other error has occurred.
+            //Let's try to check if the DB exists already by checking the error code returned. If so, delete it and re-create it
+            if (sqle.getSQLState().startsWith("X0")) {    //Error code for table already existing starts with XO
+                try {
+                    statement.executeUpdate(deleteTableSQL);
+                    statement.executeUpdate(createRecordsTableSQL);
+                    System.out.println("Deleted returnedRecords Table");
+                    System.out.println("Created returnedRecords table");
+                } catch (SQLException e) {
+                    //Still doesn't work. Throw the exception.
+                    throw e;
+                }
+            } else {
+                //do nothing - if the table exists, leave it be.
+            }
+        }
+    }
+
+
+    private void createSalesTable() throws SQLException {
+        String createRecordsTableSQL = "CREATE TABLE sales (salesID INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY, recordID INT, consignorID INT, saleDate DATE, price FLOAT, totalToStore FLOAT, totalToConsignor FLOAT)";
+        String deleteTableSQL = "DROP TABLE sales";
+
+        try {
+            statement.executeUpdate(createRecordsTableSQL);
+            System.out.println("Created sales table");
+        } catch (SQLException sqle) {
+            //Seems the table already exists, or some other error has occurred.
+            //Let's try to check if the DB exists already by checking the error code returned. If so, delete it and re-create it
+            if (sqle.getSQLState().startsWith("X0")) {    //Error code for table already existing starts with XO
+                try {
+                    statement.executeUpdate(deleteTableSQL);
+                    statement.executeUpdate(createRecordsTableSQL);
+                    System.out.println("Deleted sales Table");
+                    System.out.println("Created sales table");
+                } catch (SQLException e) {
+                    //Still doesn't work. Throw the exception.
+                    throw e;
+                }
+            } else {
+                //do nothing - if the table exists, leave it be.
+            }
+        }
+    }
+
     private void addRecordsInStoreTestData() throws Exception {
         // Test data.
         if (statement == null) {
@@ -122,45 +258,45 @@ public class CreateDatabase {
         }
         //"CREATE TABLE recordsInStore (recordID INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY, consignorID INT, artist VARCHAR(50), title VARCHAR(50), price FLOAT, consignmentDate DATE)";
         try {
-            String addRecord1 = "INSERT INTO recordsInStore (consignorID, artist, title, price, consignmentDate) VALUES (4, 'Shivaree', 'Who''s Got Trouble?', 7.00, '2015-04-24')";
+            String addRecord1 = "INSERT INTO recordsInMainRoom (consignorID, artist, title, price, consignmentDate) VALUES (4, 'Shivaree', 'Who''s Got Trouble?', 7.00, '2015-04-24')";
             statement.executeUpdate(addRecord1);
-            String addRecord2 = "INSERT INTO recordsInStore (consignorID, artist, title, price, consignmentDate) VALUES (1, 'Al Green', 'Greatest Hits', 9.99, '2015-03-24')";
+            String addRecord2 = "INSERT INTO recordsInMainRoom (consignorID, artist, title, price, consignmentDate) VALUES (1, 'Al Green', 'Greatest Hits', 9.99, '2015-03-24')";
             statement.executeUpdate(addRecord2);
-            String addRecord3 = "INSERT INTO recordsInStore (consignorID, artist, title, price, consignmentDate) VALUES (3, 'B.B. King', 'Live At The Regal', 4.99, '2012-04-24')";
+            String addRecord3 = "INSERT INTO recordsInMainRoom (consignorID, artist, title, price, consignmentDate) VALUES (3, 'B.B. King', 'Live At The Regal', 4.99, '2012-04-24')";
             statement.executeUpdate(addRecord3);
-            String addRecord4 = "INSERT INTO recordsInStore (consignorID, artist, title, price, consignmentDate) VALUES (2, 'The Modern Lovers', 'The Modern Lovers', 14.99, '2015-04-24')";
+            String addRecord4 = "INSERT INTO recordsInMainRoom (consignorID, artist, title, price, consignmentDate) VALUES (2, 'The Modern Lovers', 'The Modern Lovers', 14.99, '2015-04-24')";
             statement.executeUpdate(addRecord4);
-            String addRecord5 = "INSERT INTO recordsInStore (consignorID, artist, title, price, consignmentDate) VALUES (5, 'Los Lobos', 'How Will The Wolf Survive?', 5.99, '2015-04-24')";
+            String addRecord5 = "INSERT INTO recordsInMainRoom (consignorID, artist, title, price, consignmentDate) VALUES (5, 'Los Lobos', 'How Will The Wolf Survive?', 5.99, '2015-04-24')";
             statement.executeUpdate(addRecord5);
-            String addRecord6 = "INSERT INTO recordsInStore (consignorID, artist, title, price, consignmentDate) VALUES (4, 'Buzzcocks, The', 'Singles Going Steady', 6.99, '2013-04-24')";
+            String addRecord6 = "INSERT INTO recordsInMainRoom (consignorID, artist, title, price, consignmentDate) VALUES (4, 'Buzzcocks, The', 'Singles Going Steady', 6.99, '2013-04-24')";
             statement.executeUpdate(addRecord6);
-            String addRecord7 = "INSERT INTO recordsInStore (consignorID, artist, title, price, consignmentDate) VALUES (4, 'Jimi Hendrix Experience, The', 'Are You Experienced?', 9.99, '2015-01-20')";
+            String addRecord7 = "INSERT INTO recordsInMainRoom (consignorID, artist, title, price, consignmentDate) VALUES (4, 'Jimi Hendrix Experience, The', 'Are You Experienced?', 9.99, '2015-01-20')";
             statement.executeUpdate(addRecord7);
-            String addRecord8 = "INSERT INTO recordsInStore (consignorID, artist, title, price, consignmentDate) VALUES (5, 'Gayngs', 'Relayted', 2.99, '2015-04-24')";
+            String addRecord8 = "INSERT INTO recordsInMainRoom (consignorID, artist, title, price, consignmentDate) VALUES (5, 'Gayngs', 'Relayted', 2.99, '2015-04-24')";
             statement.executeUpdate(addRecord8);
-            String addRecord9 = "INSERT INTO recordsInStore (consignorID, artist, title, price, consignmentDate) VALUES (5, 'John Lee Hooker', 'Live At Newport', 12.99, '2015-04-24')";
+            String addRecord9 = "INSERT INTO recordsInMainRoom (consignorID, artist, title, price, consignmentDate) VALUES (5, 'John Lee Hooker', 'Live At Newport', 12.99, '2015-04-24')";
             statement.executeUpdate(addRecord9);
-            String addRecord10 = "INSERT INTO recordsInStore (consignorID, artist, title, price, consignmentDate) VALUES (5, 'Johnny Cash', 'At San Quentin', 5.99, '2015-04-24')";
+            String addRecord10 = "INSERT INTO recordsInMainRoom (consignorID, artist, title, price, consignmentDate) VALUES (5, 'Johnny Cash', 'At San Quentin', 5.99, '2015-04-24')";
             statement.executeUpdate(addRecord10);
-            String addRecord11 = "INSERT INTO recordsInStore (consignorID, artist, title, price, consignmentDate) VALUES (4, 'Beatles, The', 'Please Please Me', 7.00, '2015-03-24')";
+            String addRecord11 = "INSERT INTO recordsInMainRoom (consignorID, artist, title, price, consignmentDate) VALUES (4, 'Beatles, The', 'Please Please Me', 7.00, '2015-03-24')";
             statement.executeUpdate(addRecord11);
-            String addRecord12 = "INSERT INTO recordsInStore (consignorID, artist, title, price, consignmentDate) VALUES (1, 'White Stripes, The', 'Elephant', 9.99, '2015-03-24')";
+            String addRecord12 = "INSERT INTO recordsInMainRoom (consignorID, artist, title, price, consignmentDate) VALUES (1, 'White Stripes, The', 'Elephant', 9.99, '2015-03-24')";
             statement.executeUpdate(addRecord12);
-            String addRecord13 = "INSERT INTO recordsInStore (consignorID, artist, title, price, consignmentDate) VALUES (3, 'Sonic Youth', 'Daydream Nation', 8.99, '2014-08-24')";
+            String addRecord13 = "INSERT INTO recordsInMainRoom (consignorID, artist, title, price, consignmentDate) VALUES (3, 'Sonic Youth', 'Daydream Nation', 8.99, '2014-08-24')";
             statement.executeUpdate(addRecord13);
-            String addRecord14 = "INSERT INTO recordsInStore (consignorID, artist, title, price, consignmentDate) VALUES (4, 'The Modern Lovers', 'The Modern Lovers', 14.99, '2015-04-24')";
+            String addRecord14 = "INSERT INTO recordsInMainRoom (consignorID, artist, title, price, consignmentDate) VALUES (4, 'The Modern Lovers', 'The Modern Lovers', 14.99, '2015-04-24')";
             statement.executeUpdate(addRecord14);
-            String addRecord15 = "INSERT INTO recordsInStore (consignorID, artist, title, price, consignmentDate) VALUES (5, 'Nirvana', 'Nevermind', 8.99, '2015-04-01')";
+            String addRecord15 = "INSERT INTO recordsInMainRoom (consignorID, artist, title, price, consignmentDate) VALUES (5, 'Nirvana', 'Nevermind', 8.99, '2015-04-01')";
             statement.executeUpdate(addRecord15);
-            String addRecord16 = "INSERT INTO recordsInStore (consignorID, artist, title, price, consignmentDate) VALUES (5, 'Elvis Presley', 'The Top Ten Hits', 5.99, '2015-04-24')";
+            String addRecord16 = "INSERT INTO recordsInMainRoom (consignorID, artist, title, price, consignmentDate) VALUES (5, 'Elvis Presley', 'The Top Ten Hits', 5.99, '2015-04-24')";
             statement.executeUpdate(addRecord16);
-            String addRecord17 = "INSERT INTO recordsInStore (consignorID, artist, title, price, consignmentDate) VALUES (4, 'Beatles, The', 'Rubber Soul', 12.99, '2015-04-25')";
+            String addRecord17 = "INSERT INTO recordsInMainRoom (consignorID, artist, title, price, consignmentDate) VALUES (4, 'Beatles, The', 'Rubber Soul', 12.99, '2015-04-25')";
             statement.executeUpdate(addRecord17);
-            String addRecord18 = "INSERT INTO recordsInStore (consignorID, artist, title, price, consignmentDate) VALUES (4, 'Tom Waits', 'Franks Wild Years', 5.99, '2015-04-24')";
+            String addRecord18 = "INSERT INTO recordsInMainRoom (consignorID, artist, title, price, consignmentDate) VALUES (4, 'Tom Waits', 'Franks Wild Years', 5.99, '2015-04-24')";
             statement.executeUpdate(addRecord18);
-            String addRecord19 = "INSERT INTO recordsInStore (consignorID, artist, title, price, consignmentDate) VALUES (4, 'Pixies, The', 'Doolittle', 5.99, '2015-04-24')";
+            String addRecord19 = "INSERT INTO recordsInMainRoom (consignorID, artist, title, price, consignmentDate) VALUES (4, 'Pixies, The', 'Doolittle', 5.99, '2015-04-24')";
             statement.executeUpdate(addRecord19);
-            String addRecord20 = "INSERT INTO recordsInStore (consignorID, artist, title, price, consignmentDate) VALUES (4, 'Rolling Stones, The', 'Let It Bleed', 5.99, '2015-04-24')";
+            String addRecord20 = "INSERT INTO recordsInMainRoom (consignorID, artist, title, price, consignmentDate) VALUES (4, 'Rolling Stones, The', 'Let It Bleed', 5.99, '2015-04-24')";
             statement.executeUpdate(addRecord20);
 
 

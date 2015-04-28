@@ -1,6 +1,5 @@
 package com.KevinMcClean;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -32,7 +31,7 @@ public class ConsignmentStoreModel {
 
     LinkedList<Statement> allStatements = new LinkedList<Statement>();
 
-
+    PreparedStatement psAddRecord;
 
     public ConsignmentStoreModel() {
         try{
@@ -95,13 +94,69 @@ public class ConsignmentStoreModel {
         }
     }
 
-    public LinkedList<Record> displayAllRecords() {
+    public Record buyRecord(int consignorID, String artist, String title, double price, String dateString){
+        String addRecord = "INSERT INTO recordsInMainRoom (consignorID, artist, title, price, consignmentDate) VALUES (?, ?, ?, ?, ?)";
+        Record newRecord = null;
+        try {
+
+            String[] yearMonthDate = dateString.split("-");
+            Integer year = Integer.parseInt(yearMonthDate[0]);
+            Integer month = Integer.parseInt(yearMonthDate[1]);
+            Integer date = Integer.parseInt(yearMonthDate[2]);
+            java.sql.Date todaysDate = new java.sql.Date(year, month, date);
+
+            psAddRecord = conn.prepareStatement(addRecord);
+            allStatements.add(psAddRecord);
+            psAddRecord.setInt(1, consignorID);
+            psAddRecord.setString(2, artist);
+            psAddRecord.setString(3, title);
+            psAddRecord.setDouble(4, price);
+            psAddRecord.setDate(5, todaysDate);
+            psAddRecord.execute();
+        }
+        catch (SQLException sqle) {
+            System.err.println("Error adding record.");
+            //TODO delete these two lines (they give out too much information).
+            System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
+            sqle.printStackTrace();
+            return null;
+        }
+
+        String getNewRecord = "SELECT TOP 1  FROM recordsInMainRoom (consignorID, artist, title, price, consignmentDate) VALUES (?, ?, ?, ?, ?)";
+        try {
+            while (rs.next()) {
+
+                int newRecordID = rs.getInt("recordID");
+                int newConsignorID = rs.getInt("consignorID");
+                String newArtist = rs.getString("artist");
+                String newTitle = rs.getString("title");
+                Double newPrice = rs.getDouble("price");
+                Date newConsignmentDate = rs.getDate("consignmentDate");
+                newRecord = new Record(newRecordID, newConsignorID, newArtist, newTitle, newPrice, newConsignmentDate);
+            }
+        }
+        catch (SQLException sqle) {
+            System.err.println("Error adding record.");
+            //TODO delete these two lines (they give out too much information).
+            System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
+            sqle.printStackTrace();
+            return null;
+        }
+
+
+        //if we get here, everything should have worked...
+        //Return the list of laptops, which will be empty if there is no data in the database
+        return newRecord;
+    }
+
+
+    public LinkedList<Record> updateRecordsList() {
 
         LinkedList<Record> allRecords = new LinkedList<Record>();
 
-        String displayAll = "SELECT * FROM recordsInStore";
+        String displayRecordsInMainRoom = "SELECT * FROM recordsInMainRoom";
         try {
-            rs = statement.executeQuery(displayAll);
+            rs = statement.executeQuery(displayRecordsInMainRoom);
         } catch (SQLException sqle) {
             System.err.println("Could not retrieve Records");
             //TODO delete these two lines (they give out too much information).
@@ -137,7 +192,7 @@ public class ConsignmentStoreModel {
         return allRecords;
     }
 
-    public LinkedList<Consignor> displayAllConsignors() {
+    public LinkedList<Consignor> updateConsignorsList() {
 
         LinkedList<Consignor> allConsignors = new LinkedList<Consignor>();
 

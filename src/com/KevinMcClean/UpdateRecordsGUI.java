@@ -14,24 +14,25 @@ public class UpdateRecordsGUI extends ConsignmentStoreViewer{
 
     //TODO this is a list of all the records that have been in the story for longer than a year, but still have their Charity boolean set to false
     private JTable yearOldRecordsTable;
-    private JButton updateYearOldRecordsButton;
+    private JButton donatedToCharityButton;
     private JButton exitButton;
-    private JButton updateMonthOldRecordsButton;
+    private JButton sentToBargainBasementButton;
     private JPanel updateRecordsGUIPanel;
+    private JButton returnedToOwnerButton;
 
     UpdateRecordsGUI(ConsignmentStoreController csc){
         setContentPane(updateRecordsGUIPanel);
         pack();
         setVisible(true);
 
-        updateMonthOldRecordsButton.addActionListener(new ActionListener() {
+        sentToBargainBasementButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //TODO allow the user to select specific records from the monthOldTable and send them to the basement (i.e. set the boolean to true).
                 //TODO it then updates the table to show the new list.
             }
         });
-        updateYearOldRecordsButton.addActionListener(new ActionListener() {
+        donatedToCharityButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //TODO allow the user to select specific records from the yearOldTable and send them to the basement (i.e. set the boolean to true).

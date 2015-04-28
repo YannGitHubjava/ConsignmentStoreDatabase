@@ -9,7 +9,7 @@ import java.awt.event.ActionListener;
  */
 public class RecordsGUI extends ConsignmentStoreViewer {
     private JPanel recordsGUIPanel;
-    private JTable recordsTable;
+    private JTable recordsTable = new myRecordTable();
     private JButton buyButton;
     private JButton exitButton;
     private JButton sellButton;

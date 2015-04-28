@@ -16,6 +16,7 @@ public class BuyGUI extends ConsignmentStoreViewer{
     private JTextField albumTitleTextField;
     private JButton exitButton;
     private JButton purchaseButton;
+    private int consignorID;
 
     //this is where the user can buy records from the consignor.
     BuyGUI(ConsignmentStoreController csc){
@@ -30,7 +31,7 @@ public class BuyGUI extends ConsignmentStoreViewer{
                 String priceText = priceTextField.getText();
                 String albumTitle = albumTitleTextField.getText();
                 if (!artistText.isEmpty()&& !priceText.isEmpty() && !albumTitle.isEmpty()){
-                    buyRecords(artistText, albumTitle, priceText);
+                    buyRecords(artistText, albumTitle, priceText, consignorID);
                     //TODO have this information turned into a relevant string for use by the database.
                     artistTextField.setText(null);
                     priceTextField.setText(null);
