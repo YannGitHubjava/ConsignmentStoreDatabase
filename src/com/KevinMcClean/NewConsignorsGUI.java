@@ -1,19 +1,25 @@
 package com.KevinMcClean;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.math.BigDecimal;
+import java.util.InputMismatchException;
 
 /**
  * Created by Kevin on 4/21/2015.
  */
 public class NewConsignorsGUI extends ConsignmentStoreViewer{
-    private JTextField nameTextField;
+    private JTextField firstNameTextField;
     private JTextField phoneNumberTextField;
     private JTextField addressTextField;
     private JButton addNewConsignorButton;
     private JButton exitButton;
     private JPanel newConsignorsGUIPanel;
+    private JTextField lastNameTextField;
+    private JTextField cityTextField;
+    private JTextField stateTextField;
 
     NewConsignorsGUI(ConsignmentStoreController csc){
         setContentPane(newConsignorsGUIPanel);
@@ -22,14 +28,31 @@ public class NewConsignorsGUI extends ConsignmentStoreViewer{
         addNewConsignorButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String nameText = nameTextField.getText();
-                String phoneNumber = phoneNumberTextField.getText();
+                String firstNameText = firstNameTextField.getText();
+                String lastNameText = lastNameTextField.getText();
                 String address = addressTextField.getText();
-                if (!nameText.isEmpty() && !phoneNumber.isEmpty() && !address.isEmpty()){
-                    //TODO set this so that it takes the information from the Strings and sends things off to be turned into a proper
-                    nameTextField.setText(null);
-                    phoneNumberTextField.setText(null);
+                String city = cityTextField.getText();
+                String state = stateTextField.getText();
+                String phoneNumber = phoneNumberTextField.getText();
+                if (!firstNameText.isEmpty() && !lastNameText.isEmpty() && !address.isEmpty() && !city.isEmpty() && !state.isEmpty() && !phoneNumber.isEmpty() ){
+                    Integer phoneInt;
+                    try{
+                        phoneInt = Integer.parseInt(phoneNumber);
+                    }
+                    catch(InputMismatchException ime){
+                        JOptionPane.showMessageDialog(newConsignorsGUIPanel, "Phone number must be all integers, no dashes or letters.");
+                        return;
+                    }
+
+                    newConsignorViewer(firstNameText, lastNameText, address, city, state, phoneInt);
+
+                    firstNameTextField.setText(null);
+                    lastNameTextField.setText(null);
                     addressTextField.setText(null);
+                    cityTextField.setText(null);
+                    stateTextField.setText(null);
+                    phoneNumberTextField.setText(null);
+
                 }
                 else{
                     JOptionPane.showMessageDialog(newConsignorsGUIPanel, "You must fill out all the fields to add a consignor.");
@@ -40,8 +63,7 @@ public class NewConsignorsGUI extends ConsignmentStoreViewer{
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                newConsignorsGUIPanel.removeAll();
-                setVisible(false);
+                dispose();
             }
         });
     }

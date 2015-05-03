@@ -25,6 +25,19 @@ public class UpdateRecordsGUI extends ConsignmentStoreViewer{
         pack();
         setVisible(true);
 
+
+
+        returnedToOwnerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                /*TODO this action boolean should take the recordID of the highlighted record and use it as the id to process.
+                //boolean action = returnRecordViewer(recordID);
+                if (!action){
+                    JOptionPane.showMessageDialog(updateRecordsGUIPanel, "Was not able to return record in database.");
+                }*/
+            }
+        });
+
         sentToBargainBasementButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

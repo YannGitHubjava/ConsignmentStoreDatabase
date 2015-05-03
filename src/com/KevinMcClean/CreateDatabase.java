@@ -197,6 +197,8 @@ public class CreateDatabase {
     }
 
 
+
+    //creates the table of records that have been returned.
     private void createRecordsReturnedTable() throws SQLException {
         String createRecordsTableSQL = "CREATE TABLE returnedRecords (recordID INT, consignorID INT, artist VARCHAR(50), title VARCHAR(50), price FLOAT, consignmentDate DATE, returnedDate DATE )";
         String deleteTableSQL = "DROP TABLE returnedRecords";
@@ -224,6 +226,7 @@ public class CreateDatabase {
     }
 
 
+    //creates the table that tracks the sales that have occurred.
     private void createSalesTable() throws SQLException {
         String createRecordsTableSQL = "CREATE TABLE sales (salesID INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY, recordID INT, consignorID INT, saleDate DATE, price FLOAT, totalToStore FLOAT, totalToConsignor FLOAT)";
         String deleteTableSQL = "DROP TABLE sales";
@@ -250,6 +253,7 @@ public class CreateDatabase {
         }
     }
 
+    //this adds records to the record store database so there's stuff to work with.
     private void addRecordsInStoreTestData() throws Exception {
         // Test data.
         if (statement == null) {
@@ -310,6 +314,7 @@ public class CreateDatabase {
         }
     }
 
+    //this adds some data to the consignor database so there's stuff to work with.
     private void addConsignorTestData() throws Exception {
         // Test data.
         if (statement == null) {
@@ -390,250 +395,3 @@ public class CreateDatabase {
         }
     }
 }
-/*
-        //changes the cellphone user.
-        public boolean reassignCellphone(CellPhone cellPhone, String newuser){
-            String reassignCellphone = "UPDATE cellphones SET staff = (?) WHERE id = (?)";
-            try {
-                psReassignCellphone = conn.prepareStatement(reassignCellphone);
-                allStatements.add(psReassignCellphone);
-                psReassignCellphone.setString(1, newuser);
-                psReassignCellphone.setInt(2, cellPhone.id);
-                psReassignCellphone.execute();
-            }
-            catch (SQLException sqle) {
-                System.err.println("Error preparing statement or executing prepared statement to add laptop");
-                System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
-                sqle.printStackTrace();
-                return false;
-            }
-            return true;
-        }
-*/
-/*        //updates the information on the laptop so that it is correct.
-        public boolean reassignLaptop(Laptop laptop, String newuser){
-            String reassignLaptop = "UPDATE laptops SET staff = (?) WHERE id = (?)";
-            try {
-                psReassignLaptop = conn.prepareStatement(reassignLaptop);
-                allStatements.add(psReassignLaptop);
-                psReassignLaptop.setString(1, newuser);
-                psReassignLaptop.setInt(2, laptop.id);
-                psReassignLaptop.execute();
-            }
-            catch (SQLException sqle) {
-                System.err.println("Error preparing statement or executing prepared statement to add laptop");
-                System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
-                sqle.printStackTrace();
-                return false;
-            }
-            return true;
-        }
-
-        public boolean deleteLaptop(Laptop laptop){
-            String deleteLaptop = "DELETE FROM laptops WHERE id = (?)";
-
-            //deletes the laptop with the chosen id from the table.
-            try {
-                psDelLaptop = conn.prepareStatement(deleteLaptop);
-                allStatements.add(psDelLaptop);
-                psDelLaptop.setInt(1, laptop.id);
-                psDelLaptop.execute();
-            }
-            catch (SQLException sqle) {
-                System.err.println("Error preparing statement or executing prepared statement to add laptop");
-                System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
-                sqle.printStackTrace();
-                return false;
-            }
-            return true;
-        }
-
-        public boolean deleteCellphone(CellPhone cellPhone){
-            String deleteCellphone = "DELETE FROM cellphones WHERE id = (?)";
-
-            //finds the cellphone selected by the user and deletes it.
-            try {
-                psDelCellphone = conn.prepareStatement(deleteCellphone);
-                allStatements.add(psDelCellphone);
-                psDelCellphone.setInt(1, cellPhone.id);
-                psDelCellphone.execute();
-            }
-            catch (SQLException sqle) {
-                System.err.println("Error preparing statement or executing prepared statement to add laptop");
-                System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
-                sqle.printStackTrace();
-                return false;
-            }
-            return true;
-        }
-
-        public boolean addCellphone(CellPhone cellPhone) {
-
-
-            //Create SQL query to add this laptop info to DB
-
-            String addLaptopSQLps = "INSERT INTO cellphones (make, model, staff) VALUES ( ? , ? , ?)" ;
-            try {
-                psAddLaptop = conn.prepareStatement(addLaptopSQLps);
-                allStatements.add(psAddLaptop);
-                psAddLaptop.setString(1, cellPhone.getCellPhoneMake());
-                psAddLaptop.setString(2, cellPhone.getCellPhoneModel());
-                psAddLaptop.setString(3, cellPhone.getCellPhoneStaff());
-                psAddLaptop.execute();
-            }
-            catch (SQLException sqle) {
-                System.err.println("Error preparing statement or executing prepared statement to add laptop");
-                System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
-                sqle.printStackTrace();
-                return false;
-            }
-            return true;
-        }
-
-        //adds a laptop.
-        public boolean addLaptop(Laptop laptop) {
-
-
-            //Create SQL query to add this laptop info to DB
-
-            String addLaptopSQLps = "INSERT INTO laptops (make, model, staff) VALUES ( ? , ? , ?)" ;
-
-            //takes the information on the laptop and inserts it into table.
-            try {
-                psAddLaptop = conn.prepareStatement(addLaptopSQLps);
-                allStatements.add(psAddLaptop);
-                psAddLaptop.setString(1, laptop.getLapTopMake());
-                psAddLaptop.setString(2, laptop.getLapTopModel());
-                psAddLaptop.setString(3, laptop.getLapTopStaff());
-                psAddLaptop.execute();
-            }
-            catch (SQLException sqle) {
-                System.err.println("Error preparing statement or executing prepared statement to add laptop");
-                System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
-                sqle.printStackTrace();
-                return false;
-            }
-            return true;
-        }
-*/
-
-        /** Returns null if any errors in fetching laptops
-         *  Returnd empty list if no laptops in DB
-         *
-         */
- /*       public LinkedList<Laptop> displayAllLaptops() {
-
-            LinkedList<Laptop> allLaptops = new LinkedList<Laptop>();
-
-            String displayAll = "SELECT * FROM laptops";
-            try {
-                rs = statement.executeQuery(displayAll);
-            }
-            catch (SQLException sqle) {
-                System.err.println("Error fetching all laptops");
-                System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
-                sqle.printStackTrace();
-                return null;
-            }
-
-            //puts individual laptop information into strings.
-            try {
-                while (rs.next()) {
-
-                    int id = rs.getInt("id");
-                    String make = rs.getString("make");
-                    String model = rs.getString("model");
-                    String staff = rs.getString("staff");
-                    Laptop l = new Laptop(id, make, model, staff);
-                    allLaptops.add(l);
-
-                }
-            } catch (SQLException sqle) {
-                System.err.println("Error reading from result set after fetching all laptop data");
-                System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
-                sqle.printStackTrace();
-                return null;
-
-            }
-
-            //if we get here, everything should have worked...
-            //Return the list of laptops, which will be empty if there is no data in the database
-            return allLaptops;
-        }
-
-        //displays all the cellphones.
-        public LinkedList<CellPhone> displayAllCellphones() {
-
-            LinkedList<CellPhone> allCellphones = new LinkedList<CellPhone>();
-
-            String displayAll = "SELECT * FROM cellphones";
-            try {
-                rs = statement.executeQuery(displayAll);
-            }
-            catch (SQLException sqle) {
-                System.err.println("Error fetching all cellphones");
-                System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
-                sqle.printStackTrace();
-                return null;
-            }
-
-            //puts all of the information about the cell phones into individual strings and outputs them.
-            try {
-                while (rs.next()) {
-
-                    int id = rs.getInt("id");
-                    String make = rs.getString("make");
-                    String model = rs.getString("model");
-                    String staff = rs.getString("staff");
-                    CellPhone c = new CellPhone(id, make, model, staff);
-                    allCellphones.add(c);
-
-                }
-            } catch (SQLException sqle) {
-                System.err.println("Error reading from result set after fetching all cellphone data");
-                System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
-                sqle.printStackTrace();
-                return null;
-            }
-
-            //if we get here, everything should have worked...
-            //Return the list of laptops, which will be empty if there is no data in the database
-            return allCellphones;
-        }
-
-        //in theory this should pull the necessary information, but does not.
-        public String staffSearch(String user){
-            String staffSearchString = "SELECT laptops.*, cellphones.* FROM laptops CROSS JOIN cellphones WHERE laptops.staff = (?) OR cellphones.staff = (?)";
-
-            try {
-                psStaffSearch = conn.prepareStatement(staffSearchString);
-                allStatements.add(psStaffSearch);
-                psStaffSearch.setString(1, user);
-                psStaffSearch.setString(2, user);
-                psStaffSearch.execute();
-            }
-
-            catch (SQLException sqle) {
-                System.err.println("Error: could not execute search.");
-                System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
-                sqle.printStackTrace();
-                return null;
-            }
-
-            try {
-                System.out.print(user + ": ");
-                while(rs.next()){
-                    System.out.println(rs.getString("make") + ", " + rs.getString("model"));
-                }
-                return "";
-            }
-            catch(NullPointerException npe){
-                return "";
-            }
-            catch (SQLException sqle){
-                System.out.println("Catch!");
-                return "";
-            }
-        }
-    }
-}*/

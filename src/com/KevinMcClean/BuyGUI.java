@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
+import java.sql.ResultSet;
 
 /**
  * Created by Kevin on 4/21/2015.
@@ -17,13 +18,23 @@ public class BuyGUI extends ConsignmentStoreViewer{
     private JButton exitButton;
     private JButton purchaseButton;
     private int consignorID;
+    private ResultSet resultSet;
+    private StoreTableModel stm;
 
     //this is where the user can buy records from the consignor.
     BuyGUI(ConsignmentStoreController csc){
+        this.myController = csc;
         setContentPane(buyGUIPanel);
         pack();
         setVisible(true);
-        //the purchase Button is used to buy records once
+
+
+        resultSet = displayConsignorsViewer(myController);
+        stm = new StoreTableModel(myController, resultSet);
+        consignorsTable.setModel(stm);
+
+
+        //the purchase Button is used to buy records once the fields have been filled out.
         purchaseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -45,8 +56,7 @@ public class BuyGUI extends ConsignmentStoreViewer{
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                buyGUIPanel.removeAll();
-                setVisible(false);
+                dispose();
             }
         });
     }

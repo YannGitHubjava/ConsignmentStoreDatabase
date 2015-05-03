@@ -1,5 +1,7 @@
 package com.KevinMcClean;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -54,5 +56,17 @@ public class Record {
         String recordString = "Artist: " + this.artist + "\nTitle: " + this.title + "\nConsignorID: " + this.consignorID
                 +"\nRecordID: " + this.recordID + "\nPrice: " + this.price + "\nConsignment Date: " + this.consignmentDate + "\n";
         return recordString;
+    }
+
+    public ArrayList toTable(){
+        String recordIDString = Integer.toString(this.recordID);
+        String consignorIDString = Integer.toString(this.consignorID);
+        //Array[] otherArray = new String{this.artist, this.title, recordIDString, consignorIDString};
+        ArrayList arrayRecord = new ArrayList();
+        arrayRecord.add(this.artist);
+        arrayRecord.add(this.title);
+        arrayRecord.add(this.recordID);
+        arrayRecord.add(this.consignorID);
+        return arrayRecord;
     }
 }

@@ -23,6 +23,7 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
         pack();
         setVisible(true);
         setSize(Toolkit.getDefaultToolkit().getScreenSize());
+        this.myController = csc;
         sellRecordsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -38,7 +39,7 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
         recordsInStoreButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                RecordsGUI recordsGUI = new RecordsGUI(myController);
+                RecordsInStoreGUI recordsInStoreGUI = new RecordsInStoreGUI(myController);
             }
         });
         updateRecordsButton.addActionListener(new ActionListener() {

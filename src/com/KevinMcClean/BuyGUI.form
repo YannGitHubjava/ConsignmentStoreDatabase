@@ -72,14 +72,19 @@
         </constraints>
         <properties/>
       </component>
-      <component id="fd1d2" class="javax.swing.JTable" binding="consignorsTable">
+      <scrollpane id="7a3ba">
         <constraints>
-          <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
-            <preferred-size width="150" height="50"/>
-          </grid>
+          <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
-      </component>
+        <border type="none"/>
+        <children>
+          <component id="fd1d2" class="javax.swing.JTable" binding="consignorsTable">
+            <constraints/>
+            <properties/>
+          </component>
+        </children>
+      </scrollpane>
     </children>
   </grid>
 </form>

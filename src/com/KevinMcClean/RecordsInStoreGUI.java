@@ -1,6 +1,8 @@
 package com.KevinMcClean;
 
 import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,29 +11,48 @@ import java.sql.ResultSet;
 /**
  * Created by Kevin on 4/21/2015.
  */
-public class SellGUI extends ConsignmentStoreViewer{
-
-    //TODO recordsinStoreTable will show every record where the boolean Charity is false.
-    private JTable recordsInStoreTable;
+public class RecordsInStoreGUI extends ConsignmentStoreViewer {
+    private JPanel recordsGUIPanel;
+    private JTable recordsTable;
+    StoreTableModel stm;
+    private JButton buyButton;
     private JButton exitButton;
     private JButton sellButton;
-    private JButton buyButton;
-    private JPanel buySellGUIPanel;
-    private ResultSet resultSet;
     private ConsignmentStoreController storeController;
-    private StoreTableModel stm;
+    private ResultSet resultSet;
 
-    SellGUI(ConsignmentStoreController csc){
-        this.storeController = csc;
-        setContentPane(buySellGUIPanel);
+    RecordsInStoreGUI(ConsignmentStoreController csc) {
+        setContentPane(recordsGUIPanel);
         pack();
         setVisible(true);
+        this.storeController = csc;
+
 
         resultSet = displayRecordsinMainRoomViewer(storeController);
         stm = new StoreTableModel(storeController, resultSet);
-        recordsInStoreTable.setModel(stm);
-        recordsInStoreTable.setGridColor(Color.BLACK);
+        recordsTable.setModel(stm);
+        recordsTable.setGridColor(Color.black);
 
+
+        buyButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                BuyGUI buyGUI = new BuyGUI(storeController);
+            }
+        });
+
+        sellButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                recordsTable.getColumnCount();
+                int row = recordsTable.getSelectedRow();
+
+                Object valueAt = recordsTable.getValueAt(row, 6);
+                String valueString = valueAt.toString();
+                Integer recordID = Integer.parseInt(valueString);
+                recordSaleViewer(recordID);
+            }
+        });
 
         exitButton.addActionListener(new ActionListener() {
             @Override
@@ -39,27 +60,9 @@ public class SellGUI extends ConsignmentStoreViewer{
                 dispose();
             }
         });
+    }
 
-        //allows the user to sell a record.
-        sellButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                recordsInStoreTable.getColumnCount();
-                int row = recordsInStoreTable.getSelectedRow();
-
-                Object valueAt = recordsInStoreTable.getValueAt(row, 6);
-                String valueString = valueAt.toString();
-                Integer recordID = Integer.parseInt(valueString);
-                recordSaleViewer(recordID);
-            }
-        });
-
-        //allows the user to buy a record.
-        buyButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                BuyGUI buyGUI = new BuyGUI(myController);
-            }
-        });
+    public int getRowCount() {
+        return 5;
     }
 }

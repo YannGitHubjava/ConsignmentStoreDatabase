@@ -1,11 +1,13 @@
 package com.KevinMcClean;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 
@@ -28,27 +30,39 @@ public class ConsignmentStoreModel {
     Connection conn = null;
 
     ResultSet rs = null;
+    ResultSet rsDisplayConsignors = null;
+    ResultSet rsDisplayRecordsInMainRoom = null;
+    ResultSet rspsDisplayCharityRecords = null;
 
     LinkedList<Statement> allStatements = new LinkedList<Statement>();
 
     PreparedStatement psAddRecord;
+    PreparedStatement psNewConsignor;
+    PreparedStatement psReturnRecord;
+    PreparedStatement psSelectRecord;
+    PreparedStatement psDeleteRecord;
+    PreparedStatement psGetSaleID;
+    PreparedStatement psSoldRecord;
+    PreparedStatement psSale;
+    PreparedStatement psDisplayConsignors;
+    PreparedStatement psDisplayRecordsInMainRoom;
+    PreparedStatement psDisplayCharityRecords;
+
 
     public ConsignmentStoreModel() {
-        try{
+        try {
             createConnection();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             System.out.println("Could not create a connection.");
         }
     }
-
 
 
     private void createConnection() throws Exception {
 
         try {
             conn = DriverManager.getConnection(protocol + dbName + ";create=true", USER, PASS);
-            statement = conn.createStatement();
+            statement = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
             allStatements.add(statement);
         } catch (Exception e) {
             //There are a lot of things that could go wrong here. Should probably handle them all separately but have not done so here.
@@ -58,6 +72,141 @@ public class ConsignmentStoreModel {
     }
 
 
+    //this sends out a dataset for a table of records on the main floor.
+    public ResultSet displayRecordsinMainRoom(){
+        try {
+            String displayRecordsinMainRoomString = "SELECT recordsInMainRoom.*,  consignors.firstname || consignors.lastName AS Name, consignors.consignorID FROM recordsInMainRoom JOIN consignors ON recordsInMainroom.consignorID = consignors.consignorID";
+            psDisplayRecordsInMainRoom = conn.prepareStatement(displayRecordsinMainRoomString);
+            allStatements.add(psDisplayRecordsInMainRoom);
+            rsDisplayRecordsInMainRoom = statement.executeQuery(displayRecordsinMainRoomString);
+        }
+        catch(SQLException sqle){
+            System.out.println("Could not fetch the records.");
+            System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
+            sqle.printStackTrace();
+            return rsDisplayRecordsInMainRoom;
+        }
+        return rsDisplayRecordsInMainRoom;
+    }
+
+    //this sends out a ResultSet for the charityRecords.
+    public ResultSet displayCharityRecords(){
+        try {
+            String displayCharityRecordsString = "SELECT * FROM charityRecords";
+            psDisplayCharityRecords = conn.prepareStatement(displayCharityRecordsString);
+            allStatements.add(psDisplayCharityRecords);
+            rspsDisplayCharityRecords = statement.executeQuery(displayCharityRecordsString);
+        }
+        catch(SQLException sqle){
+            System.out.println("Could not fetch the consignors");
+            System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
+            sqle.printStackTrace();
+            return rspsDisplayCharityRecords;
+        }
+        return rspsDisplayCharityRecords;
+    }
+
+    public ResultSet displayMonthOldRecords(){
+        try {
+            java.sql.Date todaysDate = getDate();
+
+            //from StackOverFlow http://stackoverflow.com/questions/16392892/how-to-reduce-one-month-from-current-date-and-stored-in-date-variable-using-java
+            int month = Calendar.MONTH - 1;
+            String displayConsignorsString = "SELECT * FROM recordsInMainRoom WHERE consignmentDate >= ";
+            psDisplayConsignors = conn.prepareStatement(displayConsignorsString);
+            allStatements.add(psDisplayConsignors);
+            rsDisplayConsignors = statement.executeQuery(displayConsignorsString);
+        }
+        catch(SQLException sqle){
+            System.out.println("Could not fetch the consignors");
+            System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
+            sqle.printStackTrace();
+            return rsDisplayConsignors;
+        }
+        return rsDisplayConsignors;
+    }
+
+    //this sends out a dataset for a table of soldRecords.
+    public ResultSet displaySoldRecords(){
+        try {
+            String displayConsignorsString = "SELECT * FROM soldRecords";
+            psDisplayConsignors = conn.prepareStatement(displayConsignorsString);
+            allStatements.add(psDisplayConsignors);
+            rsDisplayConsignors = statement.executeQuery(displayConsignorsString);
+        }
+        catch(SQLException sqle){
+            System.out.println("Could not fetch the consignors");
+            System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
+            sqle.printStackTrace();
+            return rsDisplayConsignors;
+        }
+        return rsDisplayConsignors;
+    }
+
+
+    public java.sql.Date getDate(){
+        Date date = new Date();
+        String dateString = date.toString();
+        String[] yearMonthDate = dateString.split("-");
+        Integer year = Integer.parseInt(yearMonthDate[0]);
+        Integer month = Integer.parseInt(yearMonthDate[1]);
+        Integer currentDate = Integer.parseInt(yearMonthDate[2]);
+        java.sql.Date todaysDate = new java.sql.Date(year, month, currentDate);
+        return todaysDate;
+    }
+
+    //this sends out a dataset for a table of consignors.
+    public ResultSet displayConsignors(){
+        try {
+            String displayConsignorsString = "SELECT * FROM consignors";
+            psDisplayConsignors = conn.prepareStatement(displayConsignorsString);
+            allStatements.add(psDisplayConsignors);
+            rsDisplayConsignors = statement.executeQuery(displayConsignorsString);
+        }
+        catch(SQLException sqle){
+            System.out.println("Could not fetch the consignors");
+            System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
+            sqle.printStackTrace();
+            return rsDisplayConsignors;
+        }
+        return rsDisplayConsignors;
+    }
+
+    //this method selects the record by recordID and the table that is chosen.
+    public ResultSet selectRecord(String table, int recordID) {
+        String selectSoldRecord = "SELECT * FROM " + table + " WHERE recordID = ? VALUES (?)";
+        ResultSet selectRecordRS;
+        try {
+            psSelectRecord = conn.prepareStatement(selectSoldRecord);
+            allStatements.add(psSelectRecord);
+            psSelectRecord.setInt(1, recordID);
+            String recordString = psSelectRecord.toString();
+            selectRecordRS = statement.executeQuery(recordString);
+        } catch (SQLException sqle) {
+            System.err.println("Error: Couldn't find record.");
+            //TODO delete these two lines (they give out too much information).
+            System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
+            sqle.printStackTrace();
+            return null;
+        }
+        return selectRecordRS;
+    }
+
+    //this deletes the chosen record from the chosen table.
+    public boolean deleteRecordFromTable(String table, int recordID) {
+        String deleteRecordSales = "DELETE FROM " + table + "WHERE recordID = ? VALUES (?)";
+        try {
+            psDeleteRecord = conn.prepareStatement(deleteRecordSales);
+            allStatements.add(psDeleteRecord);
+            psDeleteRecord.setInt(1, recordID);
+            psDeleteRecord.execute();
+        } catch (SQLException sqle)
+        {
+            System.out.println("Could not delete from recordsInMainRoom database.");
+            return false;
+        }
+        return true;
+    }
 
     public void cleanup() {
         // TODO Auto-generated method stub
@@ -92,6 +241,333 @@ public class ConsignmentStoreModel {
         } catch (SQLException se) {
             se.printStackTrace();
         }
+    }
+
+    public void newConsignor(String firstName, String lastName, String address, String city, String state, Integer phoneNo) {
+        String newConsignor = "INSERT INTO consignors (firstName, lastName, address, city, state, phoneNumber, totalPaid) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try {
+            BigDecimal bdPhoneNo = BigDecimal.valueOf(phoneNo);
+
+            psNewConsignor = conn.prepareStatement(newConsignor);
+            allStatements.add(psNewConsignor);
+            psNewConsignor.setString(1, firstName);
+            psNewConsignor.setString(2, lastName);
+            psNewConsignor.setString(3, address);
+            psNewConsignor.setString(4, city);
+            psNewConsignor.setString(5, state);
+            psNewConsignor.setBigDecimal(6, bdPhoneNo);
+            psNewConsignor.setFloat(7, 0);
+            psNewConsignor.execute();
+        } catch (SQLException sqle) {
+            System.err.println("Error adding new consignor.");
+            //TODO delete these two lines (they give out too much information).
+            System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
+            sqle.printStackTrace();
+            return;
+        }
+        System.out.println("Success!");
+    }
+
+    public boolean recordSales(int recordID) {
+        String addSoldRecord= "INSERT INTO soldRecords (recordID, consignorID, salesID, artist, title, price, consignmentDate, salesDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String addSale = "INSERT INTO sales (recordID, consignorID, salesDate, price, totalToStore, totalToConsignor) VALUES (?, ?, ?, ?, ?, ?)";
+
+        String getSalesID = "SELECT salesID FROM sales WHERE recordID = ? VALUES (?)";
+
+        //this method selects the record that is going to be sold.
+        String table = "recordsInMainRoom";
+        rs = selectRecord(table, recordID);
+
+        //this try block puts a sale on the sales list.
+        try {
+            while(rs.next()) {
+                int consignorID = rs.getInt("consignorID");
+                String artist = rs.getString("artist");
+                String title = rs.getString("title");
+                Float price = rs.getFloat("price");
+                Float totalToConsignor = (price * Float.parseFloat(".4"));
+                Float totalToStore = (price-totalToConsignor);
+
+                java.sql.Date consignmentDate = rs.getDate("consignmentDate");
+
+                Date date = new Date();
+                String dateString = date.toString();
+                String[] yearMonthDate = dateString.split("-");
+                Integer year = Integer.parseInt(yearMonthDate[0]);
+                Integer month = Integer.parseInt(yearMonthDate[1]);
+                Integer currentDate = Integer.parseInt(yearMonthDate[2]);
+                java.sql.Date todaysDate = new java.sql.Date(year, month, currentDate);
+
+                psReturnRecord = conn.prepareStatement(addSale);
+                allStatements.add(psReturnRecord);
+                psReturnRecord.setInt(1, recordID);
+                psReturnRecord.setInt(2, consignorID);
+                psReturnRecord.setDate(3, todaysDate);
+                psReturnRecord.setFloat(4, price);
+                psReturnRecord.setFloat(5, totalToStore);
+                psReturnRecord.setFloat(6, totalToConsignor);
+                psReturnRecord.execute();
+                System.out.println("Success!");
+            }
+        }
+        catch(SQLException sqle){
+            System.out.println("Could not add to sales database.");
+            return false;
+        }
+
+        //this try block adds the sold record to the soldRecords table.
+        try {
+            while(rs.next()) {
+                int consignorID = rs.getInt("consignorID");
+                String artist = rs.getString("artist");
+                String title = rs.getString("title");
+                Float price = rs.getFloat("price");
+                java.sql.Date consignmentDate = rs.getDate("consignmentDate");
+
+                psGetSaleID = conn.prepareCall(getSalesID);
+                allStatements.add(psReturnRecord);
+                ResultSet rs2 = statement.executeQuery(getSalesID);
+
+
+                int salesID = -1;
+                while(rs2.next()){
+                    salesID = rs.getInt("salesID");
+                }
+
+                Date date = new Date();
+                String dateString = date.toString();
+                String[] yearMonthDate = dateString.split("-");
+                Integer year = Integer.parseInt(yearMonthDate[0]);
+                Integer month = Integer.parseInt(yearMonthDate[1]);
+                Integer currentDate = Integer.parseInt(yearMonthDate[2]);
+                java.sql.Date todaysDate = new java.sql.Date(year, month, currentDate);
+
+                psReturnRecord = conn.prepareStatement(addSoldRecord);
+                allStatements.add(psReturnRecord);
+                psReturnRecord.setInt(1, recordID);
+                psReturnRecord.setInt(2, consignorID);
+                psReturnRecord.setInt(3, salesID);
+                psReturnRecord.setString(4, artist);
+                psReturnRecord.setString(5, title);
+                psReturnRecord.setFloat(6, price);
+                psReturnRecord.setDate(7, consignmentDate);
+                psReturnRecord.setDate(8, todaysDate);
+                psReturnRecord.execute();
+                System.out.println("Success!");
+            }
+        }
+        catch(SQLException sqle){
+            System.out.println("Could not add to sold record database.");
+            return false;
+        }
+
+        //this method deletes the record from the table.
+        boolean delete = deleteRecordFromTable(table, recordID);
+        if (!delete){
+            return false;
+        }
+        return true;
+    }
+
+    public boolean recordToCharity(int recordID) {
+        String recordToCharity = "INSERT INTO charityRecords (recordID, consignorID, artist, title, price, consignmentDate, charitytDate) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String selectRecordToCharity = "SELECT * FROM basementRecords WHERE recordID = ? VALUES (?)";
+        String deleteRecordToCharity = "DELETE * FROM basementRecords WHERE recordID = ? VALUES (?)";
+
+        //this block selects the record that is sent to charity from the records in the basement.
+        try {
+            psSelectRecord = conn.prepareStatement(selectRecordToCharity);
+            allStatements.add(psSelectRecord);
+            psSelectRecord.setInt(1, recordID);
+            String recordString = psSelectRecord.toString();
+            rs = statement.executeQuery(recordString);
+        } catch (SQLException sqle) {
+            System.err.println("Error: Couldn't find record.");
+            //TODO delete these two lines (they give out too much information).
+            System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
+            sqle.printStackTrace();
+            return false;
+        }
+
+        //this try block puts the record in the charity table.
+        try {
+            while(rs.next()) {
+                int consignorID = rs.getInt("consignorID");
+                String artist = rs.getString("artist");
+                String title = rs.getString("title");
+                Float price = rs.getFloat("price");
+                java.sql.Date consignmentDate = rs.getDate("consignmentDate");
+
+                Date date = new Date();
+                String dateString = date.toString();
+                String[] yearMonthDate = dateString.split("-");
+                Integer year = Integer.parseInt(yearMonthDate[0]);
+                Integer month = Integer.parseInt(yearMonthDate[1]);
+                Integer currentDate = Integer.parseInt(yearMonthDate[2]);
+                java.sql.Date todaysDate = new java.sql.Date(year, month, currentDate);
+
+                psReturnRecord = conn.prepareStatement(recordToCharity);
+                allStatements.add(psReturnRecord);
+                psReturnRecord.setInt(1, recordID);
+                psReturnRecord.setInt(2, consignorID);
+                psReturnRecord.setString(3, artist);
+                psReturnRecord.setString(4, title);
+                psReturnRecord.setFloat(5, price);
+                psReturnRecord.setDate(6, consignmentDate);
+                psReturnRecord.setDate(7, todaysDate);
+                psReturnRecord.execute();
+                System.out.println("Success!");
+            }
+        }
+        catch(SQLException sqle){
+            System.out.println("Could not add to returned record database.");
+            return false;
+        }
+
+        try{
+            //this try block deletes the record from the basement database.
+            psDeleteRecord = conn.prepareStatement(deleteRecordToCharity);
+            allStatements.add(psDeleteRecord);
+            psDeleteRecord.setInt(1, recordID);
+            psDeleteRecord.execute();
+        }
+        catch (SQLException sqle){
+            System.out.println("Could not delete from recordsInMainRoom database.");
+            return false;
+        }
+        return true;
+    }
+
+    public boolean recordToBasement(int recordID) {
+        String addRecordToBasement = "INSERT INTO basementRecords (recordID, consignorID, artist, title, price, consignmentDate, basementDate) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String selectRecordToBasement = "SELECT * FROM recordsInMainRoom WHERE recordID = ? VALUES (?)";
+        String deleteRecordToBasement = "DELETE * FROM recordsInMainRoom WHERE recordID = ? VALUES (?)";
+        try {
+            psSelectRecord = conn.prepareStatement(selectRecordToBasement);
+            allStatements.add(psSelectRecord);
+            psSelectRecord.setInt(1, recordID);
+            String recordString = psSelectRecord.toString();
+            rs = statement.executeQuery(recordString);
+        } catch (SQLException sqle) {
+            System.err.println("Error: Couldn't find record.");
+            //TODO delete these two lines (they give out too much information).
+            System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
+            sqle.printStackTrace();
+            return false;
+        }
+
+        try {
+            while(rs.next()) {
+                int consignorID = rs.getInt("consignorID");
+                String artist = rs.getString("artist");
+                String title = rs.getString("title");
+                Float price = Float.parseFloat("1");
+                java.sql.Date consignmentDate = rs.getDate("consignmentDate");
+
+                Date date = new Date();
+                String dateString = date.toString();
+                String[] yearMonthDate = dateString.split("-");
+                Integer year = Integer.parseInt(yearMonthDate[0]);
+                Integer month = Integer.parseInt(yearMonthDate[1]);
+                Integer currentDate = Integer.parseInt(yearMonthDate[2]);
+                java.sql.Date todaysDate = new java.sql.Date(year, month, currentDate);
+
+                psReturnRecord = conn.prepareStatement(addRecordToBasement);
+                allStatements.add(psReturnRecord);
+                psReturnRecord.setInt(1, recordID);
+                psReturnRecord.setInt(2, consignorID);
+                psReturnRecord.setString(3, artist);
+                psReturnRecord.setString(4, title);
+                psReturnRecord.setFloat(5, price);
+                psReturnRecord.setDate(6, consignmentDate);
+                psReturnRecord.setDate(7, todaysDate);
+                psReturnRecord.execute();
+                System.out.println("Success!");
+            }
+        }
+        catch(SQLException sqle){
+            System.out.println("Could not add to returned record database.");
+            return false;
+        }
+
+        try{
+            psDeleteRecord = conn.prepareStatement(deleteRecordToBasement);
+            allStatements.add(psDeleteRecord);
+            psDeleteRecord.setInt(1, recordID);
+            psDeleteRecord.execute();
+        }
+        catch (SQLException sqle){
+            System.out.println("Could not delete from recordsInMainRoom database.");
+            return false;
+        }
+        return true;
+    }
+
+    public boolean returnRecord(int recordID) {
+        String addReturnedRecord = "INSERT INTO returnedRecords (recordID, consignorID, artist, title, price, consignmentDate, returnedDate) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String selectReturnedRecord = "SELECT * FROM recordsInMainRoom WHERE recordID = ? VALUES (?)";
+        String deleteReturnedRecord = "DELETE * FROM recordsInMainRoom WHERE recordID = ? VALUES (?)";
+        try {
+            psSelectRecord = conn.prepareStatement(selectReturnedRecord);
+            allStatements.add(psSelectRecord);
+            psSelectRecord.setInt(1, recordID);
+            String recordString = psSelectRecord.toString();
+            rs = statement.executeQuery(recordString);
+
+
+        } catch (SQLException sqle) {
+            System.err.println("Error: Couldn't find record.");
+            //TODO delete these two lines (they give out too much information).
+            System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
+            sqle.printStackTrace();
+            return false;
+        }
+
+        try {
+            while(rs.next()) {
+                int consignorID = rs.getInt("consignorID");
+                String artist = rs.getString("artist");
+                String title = rs.getString("title");
+                Float price = rs.getFloat("price");
+                java.sql.Date consignmentDate = rs.getDate("consignmentDate");
+
+                Date date = new Date();
+                String dateString = date.toString();
+                String[] yearMonthDate = dateString.split("-");
+                Integer year = Integer.parseInt(yearMonthDate[0]);
+                Integer month = Integer.parseInt(yearMonthDate[1]);
+                Integer currentDate = Integer.parseInt(yearMonthDate[2]);
+                java.sql.Date todaysDate = new java.sql.Date(year, month, currentDate);
+
+                psReturnRecord = conn.prepareStatement(addReturnedRecord);
+                allStatements.add(psReturnRecord);
+                psReturnRecord.setInt(1, recordID);
+                psReturnRecord.setInt(2, consignorID);
+                psReturnRecord.setString(3, artist);
+                psReturnRecord.setString(4, title);
+                psReturnRecord.setFloat(5, price);
+                psReturnRecord.setDate(6, consignmentDate);
+                psReturnRecord.setDate(7, todaysDate);
+                psReturnRecord.execute();
+                System.out.println("Success!");
+            }
+        }
+        catch(SQLException sqle){
+            System.out.println("Could not add to returned record database.");
+            return false;
+        }
+
+        try{
+            psDeleteRecord = conn.prepareStatement(deleteReturnedRecord);
+            allStatements.add(psDeleteRecord);
+            psDeleteRecord.setInt(1, recordID);
+            psDeleteRecord.execute();
+        }
+        catch (SQLException sqle){
+            System.out.println("Could not delete from recordsInMainRoom database.");
+            return false;
+        }
+        return true;
     }
 
     public Record buyRecord(int consignorID, String artist, String title, double price, String dateString){
