@@ -8,22 +8,6 @@
     <properties/>
     <border type="none"/>
     <children>
-      <component id="18eb5" class="javax.swing.JTable" binding="monthOldTable">
-        <constraints>
-          <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
-            <preferred-size width="150" height="50"/>
-          </grid>
-        </constraints>
-        <properties/>
-      </component>
-      <component id="bfdc0" class="javax.swing.JTable" binding="yearOldRecordsTable">
-        <constraints>
-          <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
-            <preferred-size width="150" height="50"/>
-          </grid>
-        </constraints>
-        <properties/>
-      </component>
       <component id="a1ec" class="javax.swing.JButton" binding="sentToBargainBasementButton">
         <constraints>
           <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
@@ -72,6 +56,32 @@
           <text value="Month Old Records On The Main Store"/>
         </properties>
       </component>
+      <scrollpane id="4d9a1">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="18eb5" class="javax.swing.JTable" binding="monthOldTable">
+            <constraints/>
+            <properties/>
+          </component>
+        </children>
+      </scrollpane>
+      <scrollpane id="9715e">
+        <constraints>
+          <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="bfdc0" class="javax.swing.JTable" binding="yearOldRecordsTable">
+            <constraints/>
+            <properties/>
+          </component>
+        </children>
+      </scrollpane>
     </children>
   </grid>
 </form>

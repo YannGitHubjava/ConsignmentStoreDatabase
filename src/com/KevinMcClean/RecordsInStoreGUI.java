@@ -61,8 +61,4 @@ public class RecordsInStoreGUI extends ConsignmentStoreViewer {
             }
         });
     }
-
-    public int getRowCount() {
-        return 5;
-    }
 }

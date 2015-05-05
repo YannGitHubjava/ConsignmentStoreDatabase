@@ -16,9 +16,13 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
     private JButton quitButton;
     private JPanel consignmentStoreViewerGUIPanel;
     private JButton buyButton;
+    private JButton recordsInBasementButton;
+    private JButton recordsGivenToCharityButton;
+    private ConsignmentStoreController storeController;
 
 
     ConsignmentStoreViewerGUI(ConsignmentStoreController csc){
+        this.storeController = csc;
         setContentPane(consignmentStoreViewerGUIPanel);
         pack();
         setVisible(true);
@@ -27,37 +31,50 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
         sellRecordsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SellGUI sellGUI = new SellGUI(myController);
+                SellGUI sellGUI = new SellGUI(storeController);
             }
         });
         consignorsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ConsignorsGUI consignorsGUI = new ConsignorsGUI(myController);
+                ConsignorsGUI consignorsGUI = new ConsignorsGUI(storeController);
+            }
+        });
+        recordsGivenToCharityButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                CharityRecordsGUI crg = new CharityRecordsGUI(storeController);
+            }
+        });
+        recordsInBasementButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                BasementRecordsGUI brg = new BasementRecordsGUI(storeController);
             }
         });
         recordsInStoreButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                RecordsInStoreGUI recordsInStoreGUI = new RecordsInStoreGUI(myController);
+                RecordsInStoreGUI recordsInStoreGUI = new RecordsInStoreGUI(storeController);
             }
         });
         updateRecordsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                UpdateRecordsGUI updateRecordsGUI = new UpdateRecordsGUI(myController);
+                UpdateRecordsGUI updateRecordsGUI = new UpdateRecordsGUI(storeController);
             }
         });
         quitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                cleanupViewer();
                 System.exit(0);
             }
         });
         buyButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                BuyGUI buyGUI = new BuyGUI(myController);
+                BuyGUI buyGUI = new BuyGUI(storeController);
             }
         });
     }

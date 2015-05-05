@@ -34,6 +34,10 @@ public class ConsignmentStoreViewer extends JFrame{
         myController.requestBuyRecords(artist, title, stringDate, doublePrice, consignorID);
     }
 
+    public void cleanupViewer(){
+        myController.requestCleanUp();
+    }
+
     public ResultSet displayCharityRecordsViewer(ConsignmentStoreController csc){
         resultSet = csc.requestDisplayCharityRecords();
         return resultSet;
@@ -44,6 +48,11 @@ public class ConsignmentStoreViewer extends JFrame{
         return resultSet;
     }
 
+    public ResultSet displayMonthOldsRecordsViewer(ConsignmentStoreController csc){
+        resultSet = csc.requestDisplayMonthOldRecords();
+        return resultSet;
+    }
+
     public ResultSet displayRecordsinMainRoomViewer(ConsignmentStoreController csc){
         resultSet = csc.requestDisplayRecordsinMainRoom();
         return resultSet;
@@ -51,6 +60,11 @@ public class ConsignmentStoreViewer extends JFrame{
 
     public ResultSet displaySoldRecordsViewer(ConsignmentStoreController csc){
         resultSet = csc.requestDisplaySoldRecords();
+        return resultSet;
+    }
+
+    public ResultSet displayYearOldRecordsViewer(ConsignmentStoreController csc){
+        resultSet = csc.requestDisplayYearOldRecords();
         return resultSet;
     }
 

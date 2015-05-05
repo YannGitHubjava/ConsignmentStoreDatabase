@@ -6,26 +6,24 @@ import java.awt.event.ActionListener;
 import java.sql.ResultSet;
 
 /**
- * Created by Kevin on 4/21/2015.
+ * Created by Kevin on 5/4/2015.
  */
-public class CharityRecordsGUI extends ConsignmentStoreViewer{
-    private JTable charityRecordsTable;
-    private JPanel charityRecordsPanel;
+public class BasementRecordsGUI extends ConsignmentStoreViewer{
     private JButton exitButton;
+    private JTable basementRecordsTable;
     private ResultSet resultSet;
     private ConsignmentStoreController storeController;
     private StoreTableModel stm;
 
-    CharityRecordsGUI(ConsignmentStoreController csc) {
+    BasementRecordsGUI(ConsignmentStoreController csc){
         this.storeController = csc;
-        setContentPane(charityRecordsPanel);
+        setContentPane(basementRecordsTable);
         pack();
         setVisible(true);
 
-        resultSet = storeController.requestDisplayCharityRecords();
-        //resultSet = displayCharityRecordsViewer(storeController);
+        resultSet = storeController.requestDisplayBasementRecords();
         stm = new StoreTableModel(storeController, resultSet);
-        charityRecordsTable.setModel(stm);
+        basementRecordsTable.setModel(stm);
 
         exitButton.addActionListener(new ActionListener() {
             @Override
@@ -33,5 +31,6 @@ public class CharityRecordsGUI extends ConsignmentStoreViewer{
                 dispose();
             }
         });
+
     }
 }

@@ -1,7 +1,5 @@
 package com.KevinMcClean;
 
-import java.lang.reflect.Array;
-import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -30,6 +28,15 @@ public class ConsignmentStoreController {
 
     }
 
+    public void requestCleanUp(){
+        model.cleanup();
+    }
+
+    public ResultSet requestDisplayBasementRecords(){
+        resultSet = model.displayBasementRecords();
+        return resultSet;
+    }
+
     public ResultSet requestDisplayCharityRecords(){
         resultSet = model.displayCharityRecords();
         return resultSet;
@@ -40,13 +47,23 @@ public class ConsignmentStoreController {
         return resultSet;
     }
 
+    public ResultSet requestDisplayMonthOldRecords(){
+        resultSet = model.displayMonthOldRecords();
+        return resultSet;
+    }
+
     public ResultSet requestDisplayRecordsinMainRoom(){
-        resultSet = model.displayRecordsinMainRoom();
+        resultSet = model.displayRecordsInMainRoom();
         return resultSet;
     }
 
     public ResultSet requestDisplaySoldRecords(){
         resultSet = model.displaySoldRecords();
+        return resultSet;
+    }
+
+    public ResultSet requestDisplayYearOldRecords(){
+        resultSet = model.displayYearOldRecords();
         return resultSet;
     }
 

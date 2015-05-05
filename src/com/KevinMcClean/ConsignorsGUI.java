@@ -9,7 +9,6 @@ import java.sql.ResultSet;
  * Created by Kevin on 4/21/2015.
  */
 public class ConsignorsGUI extends ConsignmentStoreViewer{
-    //TODO this table has everyone who has consigned a record to this store.
     private JTable consignorsTable;
     private JButton newConsignorsButton;
     private JButton exitButton;
