@@ -10,6 +10,9 @@ import java.util.LinkedList;
 /**
  * Created by Kevin on 4/26/2015.
  */
+//This class is used to create the initial data to show how the database works. It is separate from the database itself, so...
+    //...that the database can be created and updated like a database would IRL. It is based on the basic databases that are...
+    //...in the various programs that Clara has demonstrated in class.
 public class CreateDatabase {
 
     // JDBC driver name, protocol, used to create a connection to the DB
@@ -30,6 +33,7 @@ public class CreateDatabase {
     LinkedList<Statement> allStatements = new LinkedList<Statement>();
 
 
+    //actuall sets up the databases.
     public void setupDatabase() {
         try {
             createConnection();
@@ -63,15 +67,17 @@ public class CreateDatabase {
             sqle.printStackTrace();
             return;
         }
+        cleanup();
     }
 
+//creates the table that holds the list of consignors.
     private void createConsignorTable() throws SQLException {
         String createConsignorsTableSQL = "CREATE TABLE consignors (consignorID INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY, firstName VARCHAR(25), lastName VARCHAR(25), address VARCHAR(50), city VARCHAR(50), state VARCHAR(2), phoneNumber BIGINT, totalPaid FLOAT)";
         String deleteTableSQL = "DROP TABLE consignors";
 
         try {
             statement.executeUpdate(createConsignorsTableSQL);
-            System.out.println("Created recordsInStore table");
+            System.out.println("Created consignors table.");
         } catch (SQLException sqle) {
             //Seems the table already exists, or some other error has occurred.
             //Let's try to check if the DB exists already by checking the error code returned. If so, delete it and re-create it
@@ -92,6 +98,7 @@ public class CreateDatabase {
         }
     }
 
+    //creates the records that are in the main room of the business.
     private void createRecordsInMainRoomTable() throws SQLException {
         String createRecordsTableSQL = "CREATE TABLE recordsInMainRoom (recordID INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY, consignorID INT, artist VARCHAR(50), title VARCHAR(50), price FLOAT, consignmentDate DATE)";
         String deleteTableSQL = "DROP TABLE recordsInMainRoom";
@@ -105,8 +112,9 @@ public class CreateDatabase {
             if (sqle.getSQLState().startsWith("X0")) {    //Error code for table already existing starts with XO
                 try {
                     statement.executeUpdate(deleteTableSQL);
-                    statement.executeUpdate(createRecordsTableSQL);
                     System.out.println("Deleted recordsInStore Table");
+
+                    statement.executeUpdate(createRecordsTableSQL);
                     System.out.println("Created recordsInStore table");
                 } catch (SQLException e) {
                     //Still doesn't work. Throw the exception.
@@ -118,6 +126,7 @@ public class CreateDatabase {
         }
     }
 
+    //these tracks the records that are in the bargain basement.
     private void createRecordsInBargainBasement() throws SQLException {
         String createRecordsTableSQL = "CREATE TABLE basementRecords (recordID INT, consignorID INT, artist VARCHAR(50), title VARCHAR(50), price FLOAT, consignmentDate DATE, basementDate DATE )";
         String deleteTableSQL = "DROP TABLE basementRecords";
@@ -131,8 +140,9 @@ public class CreateDatabase {
             if (sqle.getSQLState().startsWith("X0")) {    //Error code for table already existing starts with XO
                 try {
                     statement.executeUpdate(deleteTableSQL);
-                    statement.executeUpdate(createRecordsTableSQL);
                     System.out.println("Deleted basementRecords Table");
+
+                    statement.executeUpdate(createRecordsTableSQL);
                     System.out.println("Created basementRecords table");
                 } catch (SQLException e) {
                     //Still doesn't work. Throw the exception.
@@ -144,6 +154,7 @@ public class CreateDatabase {
         }
     }
 
+//this tracks the records that have been sold.
     private void createRecordsSoldTable() throws SQLException {
         String createRecordsTableSQL = "CREATE TABLE soldRecords (recordID INT, consignorID INT, salesID INT, artist VARCHAR(50), title VARCHAR(50), price FLOAT, consignmentDate DATE, salesDate DATE )";
         String deleteTableSQL = "DROP TABLE soldRecords";
@@ -157,8 +168,9 @@ public class CreateDatabase {
             if (sqle.getSQLState().startsWith("X0")) {    //Error code for table already existing starts with XO
                 try {
                     statement.executeUpdate(deleteTableSQL);
-                    statement.executeUpdate(createRecordsTableSQL);
                     System.out.println("Deleted soldRecords Table");
+
+                    statement.executeUpdate(createRecordsTableSQL);
                     System.out.println("Created soldRecords table");
                 } catch (SQLException e) {
                     //Still doesn't work. Throw the exception.
@@ -170,6 +182,7 @@ public class CreateDatabase {
         }
     }
 
+//this is where the records that have been given to charity are tracked.
     private void createRecordsSentToCharityTable() throws SQLException {
         String createRecordsTableSQL = "CREATE TABLE charityRecords (recordID INT, consignorID INT, artist VARCHAR(50), title VARCHAR(50), price FLOAT, consignmentDate DATE, charityDate DATE )";
         String deleteTableSQL = "DROP TABLE charityRecords";
@@ -183,8 +196,9 @@ public class CreateDatabase {
             if (sqle.getSQLState().startsWith("X0")) {    //Error code for table already existing starts with XO
                 try {
                     statement.executeUpdate(deleteTableSQL);
-                    statement.executeUpdate(createRecordsTableSQL);
                     System.out.println("Deleted charityRecords Table");
+
+                    statement.executeUpdate(createRecordsTableSQL);
                     System.out.println("Created charityRecords table");
                 } catch (SQLException e) {
                     //Still doesn't work. Throw the exception.
@@ -198,7 +212,7 @@ public class CreateDatabase {
 
 
 
-    //creates the table of records that have been returned.
+    //creates the table of records that have been returned to the owner.
     private void createRecordsReturnedTable() throws SQLException {
         String createRecordsTableSQL = "CREATE TABLE returnedRecords (recordID INT, consignorID INT, artist VARCHAR(50), title VARCHAR(50), price FLOAT, consignmentDate DATE, returnedDate DATE )";
         String deleteTableSQL = "DROP TABLE returnedRecords";
@@ -212,8 +226,9 @@ public class CreateDatabase {
             if (sqle.getSQLState().startsWith("X0")) {    //Error code for table already existing starts with XO
                 try {
                     statement.executeUpdate(deleteTableSQL);
-                    statement.executeUpdate(createRecordsTableSQL);
                     System.out.println("Deleted returnedRecords Table");
+
+                    statement.executeUpdate(createRecordsTableSQL);
                     System.out.println("Created returnedRecords table");
                 } catch (SQLException e) {
                     //Still doesn't work. Throw the exception.
@@ -240,8 +255,9 @@ public class CreateDatabase {
             if (sqle.getSQLState().startsWith("X0")) {    //Error code for table already existing starts with XO
                 try {
                     statement.executeUpdate(deleteTableSQL);
-                    statement.executeUpdate(createRecordsTableSQL);
                     System.out.println("Deleted sales Table");
+
+                    statement.executeUpdate(createRecordsTableSQL);
                     System.out.println("Created sales table");
                 } catch (SQLException e) {
                     //Still doesn't work. Throw the exception.
@@ -343,6 +359,7 @@ public class CreateDatabase {
         }
     }
 
+//sets up the connection to the database.
     private void createConnection() throws Exception {
 
         try {
@@ -360,6 +377,7 @@ public class CreateDatabase {
 
 
 
+    //from Clara's database programs. Closes out the ResultSets and PreparedStatements.
     public void cleanup() {
         // TODO Auto-generated method stub
         try {

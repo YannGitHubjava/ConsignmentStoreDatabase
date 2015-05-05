@@ -10,6 +10,7 @@ import java.util.InputMismatchException;
 /**
  * Created by Kevin on 4/21/2015.
  */
+//this GUI opens when someone needs to add a new consignor to the database.
 public class NewConsignorsGUI extends ConsignmentStoreViewer{
     private JTextField firstNameTextField;
     private JTextField phoneNumberTextField;
@@ -20,8 +21,10 @@ public class NewConsignorsGUI extends ConsignmentStoreViewer{
     private JTextField lastNameTextField;
     private JTextField cityTextField;
     private JTextField stateTextField;
+    private ConsignmentStoreController storeController;
 
     NewConsignorsGUI(ConsignmentStoreController csc){
+        this.storeController = csc;
         setContentPane(newConsignorsGUIPanel);
         pack();
         setVisible(true);
@@ -34,6 +37,7 @@ public class NewConsignorsGUI extends ConsignmentStoreViewer{
                 String city = cityTextField.getText();
                 String state = stateTextField.getText();
                 String phoneNumber = phoneNumberTextField.getText();
+                //checks to make sure that all the fields have been filled in.
                 if (!firstNameText.isEmpty() && !lastNameText.isEmpty() && !address.isEmpty() && !city.isEmpty() && !state.isEmpty() && !phoneNumber.isEmpty() ){
                     Integer phoneInt;
                     try{
@@ -44,7 +48,7 @@ public class NewConsignorsGUI extends ConsignmentStoreViewer{
                         return;
                     }
 
-                    newConsignorViewer(firstNameText, lastNameText, address, city, state, phoneInt);
+                    newConsignorViewer(firstNameText, lastNameText, address, city, state, phoneInt, storeController);
 
                     firstNameTextField.setText(null);
                     lastNameTextField.setText(null);
@@ -57,9 +61,9 @@ public class NewConsignorsGUI extends ConsignmentStoreViewer{
                 else{
                     JOptionPane.showMessageDialog(newConsignorsGUIPanel, "You must fill out all the fields to add a consignor.");
                 }
-                //TODO have this check to see if the user has filled out the form properly, and send it off to become an SQLQuery if they did.
             }
         });
+        //closes the GUI.
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

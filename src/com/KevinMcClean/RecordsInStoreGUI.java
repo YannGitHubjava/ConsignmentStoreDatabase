@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 /**
  * Created by Kevin on 4/21/2015.
  */
+//Show the recordsInMainRoom table.
 public class RecordsInStoreGUI extends ConsignmentStoreViewer {
     private JPanel recordsGUIPanel;
     private JTable recordsTable;
@@ -27,13 +28,14 @@ public class RecordsInStoreGUI extends ConsignmentStoreViewer {
         setVisible(true);
         this.storeController = csc;
 
-
+        //sets up the recordsTable for display.
         resultSet = displayRecordsinMainRoomViewer(storeController);
         stm = new StoreTableModel(storeController, resultSet);
         recordsTable.setModel(stm);
         recordsTable.setGridColor(Color.black);
 
 
+        //goes to the BuyGUI.
         buyButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -41,19 +43,21 @@ public class RecordsInStoreGUI extends ConsignmentStoreViewer {
             }
         });
 
+        //sells a chosen record.
         sellButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 recordsTable.getColumnCount();
                 int row = recordsTable.getSelectedRow();
-
-                Object valueAt = recordsTable.getValueAt(row, 6);
+                Object valueAt = recordsTable.getValueAt(row, 0);
                 String valueString = valueAt.toString();
-                Integer recordID = Integer.parseInt(valueString);
-                recordSaleViewer(recordID);
+                System.out.println(valueString);
+                //Integer recordID = Integer.parseInt(valueString);
+                //recordSaleViewer(recordID);
             }
         });
 
+        //closes the screen.
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

@@ -15,6 +15,7 @@ public class BasementRecordsGUI extends ConsignmentStoreViewer{
     private ConsignmentStoreController storeController;
     private StoreTableModel stm;
 
+    //This shows all the records that are in the basementRecords table.
     BasementRecordsGUI(ConsignmentStoreController csc){
         this.storeController = csc;
         setContentPane(basementRecordsTable);

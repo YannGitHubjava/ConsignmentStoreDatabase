@@ -9,6 +9,8 @@ import java.sql.ResultSet;
 /**
  * Created by Kevin on 4/21/2015.
  */
+
+//this shows the records that need to be either returned to their consignor, but in the bargain basement, or given to charity.
 public class UpdateRecordsGUI extends ConsignmentStoreViewer{
 
 
@@ -30,6 +32,7 @@ public class UpdateRecordsGUI extends ConsignmentStoreViewer{
         pack();
         setVisible(true);
 
+        //sets up the table displays.
         resultSet = displayMonthOldsRecordsViewer(storeController);
         stm = new StoreTableModel(storeController, resultSet);
         monthOldTable.setModel(stm);
@@ -65,6 +68,8 @@ public class UpdateRecordsGUI extends ConsignmentStoreViewer{
                 //TODO it then updates the table to show the new list.
             }
         });
+
+        //closes the GUI.
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

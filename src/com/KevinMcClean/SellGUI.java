@@ -21,18 +21,21 @@ public class SellGUI extends ConsignmentStoreViewer{
     private ConsignmentStoreController storeController;
     private StoreTableModel stm;
 
+    //sells a record.
     SellGUI(ConsignmentStoreController csc){
         this.storeController = csc;
         setContentPane(buySellGUIPanel);
         pack();
         setVisible(true);
 
+        //shows the records in the main room.
         resultSet = displayRecordsinMainRoomViewer(storeController);
         stm = new StoreTableModel(storeController, resultSet);
         recordsInStoreTable.setModel(stm);
         recordsInStoreTable.setGridColor(Color.BLACK);
 
 
+        //closes the GUI.
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

@@ -62,6 +62,7 @@ public class ConsignmentStoreModel {
         }
     }
 
+    //closes down the connection to the database.
     public void cleanup() {
         // TODO Auto-generated method stub
         try {
@@ -97,6 +98,7 @@ public class ConsignmentStoreModel {
         }
     }
 
+    //connects the class to the database.
     private void createConnection() throws Exception {
 
         try {
@@ -110,6 +112,7 @@ public class ConsignmentStoreModel {
         }
     }
 
+    //this has the database send back data on the records that are in the basementRecords table, which is used for a display in the GUI.
     public ResultSet displayBasementRecords(){
         try {
             String displayBasementRecordsString = "SELECT * FROM basementRecords";
@@ -125,7 +128,7 @@ public class ConsignmentStoreModel {
         }
         return rsDisplayBasementRecords;
     }
-    //this sends out a dataset for a table of records on the main floor.
+    //this has the database send back data on the records that are in the recordsInMainRoom table, which is used for a display in the GUI.
     public ResultSet displayRecordsInMainRoom(){
         try {
             String displayRecordsinMainRoomString = "SELECT recordsInMainRoom.*,  consignors.firstname || consignors.lastName AS Name, consignors.consignorID FROM recordsInMainRoom JOIN consignors ON recordsInMainroom.consignorID = consignors.consignorID";
@@ -142,7 +145,7 @@ public class ConsignmentStoreModel {
         return rsDisplayRecordsInMainRoom;
     }
 
-    //this sends out a ResultSet for the charityRecords.
+    //this has the database send back data on the records that are in the charityRecords table, which is used for a display in the GUI.
     public ResultSet displayCharityRecords(){
         try {
             String displayCharityRecordsString = "SELECT * FROM charityRecords";
@@ -159,6 +162,7 @@ public class ConsignmentStoreModel {
         return rsDisplayCharityRecords;
     }
 
+    //this has the database send back data on the records that are in the recordsInMainRoom table and over a month old, which is used for a display in the GUI.
     public ResultSet displayMonthOldRecords(){
         try {
             java.sql.Date monthOldDate = getMonthOldDate();
@@ -178,6 +182,7 @@ public class ConsignmentStoreModel {
         return rsDisplayConsignors;
     }
 
+    //this has the database send back data on the records that are in the basementRecords table and over a year old, which is used for a display in the GUI.
     public ResultSet displayYearOldRecords(){
         try {
             java.sql.Date monthOldDate = getYearOldDate();
@@ -214,6 +219,7 @@ public class ConsignmentStoreModel {
         return rsDisplayConsignors;
     }
 
+    //this gets the current date and formats it for use in Derby.
     public java.sql.Date getDate(){
         java.util.Date date = new java.util.Date();
         SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd");
@@ -226,6 +232,7 @@ public class ConsignmentStoreModel {
         return todaysDate;
     }
 
+    //this gets the date from a month ago and formats it for use in Derby.
     public java.sql.Date getMonthOldDate(){
         java.util.Date date = new java.util.Date();
         SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd");
@@ -239,6 +246,7 @@ public class ConsignmentStoreModel {
         return todaysDate;
     }
 
+    //this gets the date from a year ago and formats it for use in Derby.
     public java.sql.Date getYearOldDate(){
         java.util.Date date = new java.util.Date();
         SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd");
@@ -305,8 +313,7 @@ public class ConsignmentStoreModel {
         return true;
     }
 
-
-
+    //this has the database send back data on the consignors, which is used for a display in the GUI.
     public void newConsignor(String firstName, String lastName, String address, String city, String state, Integer phoneNo) {
         String newConsignor = "INSERT INTO consignors (firstName, lastName, address, city, state, phoneNumber, totalPaid) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try {
@@ -332,10 +339,11 @@ public class ConsignmentStoreModel {
         System.out.println("Success!");
     }
 
+    //this lists makes a new sale listing and moves the record into the soldRecords table. It also deletes the table from whichever table it is in.
+    //TODO make it so that the program knows which table contains the record. Should be a string that comes into this method.
     public boolean recordSales(int recordID) {
         String addSoldRecord= "INSERT INTO soldRecords (recordID, consignorID, salesID, artist, title, price, consignmentDate, salesDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         String addSale = "INSERT INTO sales (recordID, consignorID, salesDate, price, totalToStore, totalToConsignor) VALUES (?, ?, ?, ?, ?, ?)";
-
         String getSalesID = "SELECT salesID FROM sales WHERE recordID = ? VALUES (?)";
 
         //this method selects the record that is going to be sold.
@@ -349,8 +357,6 @@ public class ConsignmentStoreModel {
                 Float price = rs.getFloat("price");
                 Float totalToConsignor = (price * Float.parseFloat(".4"));
                 Float totalToStore = (price-totalToConsignor);
-
-
 
                 psReturnRecord = conn.prepareStatement(addSale);
                 allStatements.add(psReturnRecord);
@@ -415,6 +421,7 @@ public class ConsignmentStoreModel {
         return true;
     }
 
+    //moves a record from the basementRecords table to the charityRecords table.
     public boolean recordToCharity(int recordID) {
         String recordToCharity = "INSERT INTO charityRecords (recordID, consignorID, artist, title, price, consignmentDate, charitytDate) VALUES (?, ?, ?, ?, ?, ?, ?)";
         String selectRecordToCharity = "SELECT * FROM basementRecords WHERE recordID = ? VALUES (?)";
@@ -477,6 +484,7 @@ public class ConsignmentStoreModel {
         return true;
     }
 
+    //moves a record from the recordsInMainRoom table to the basementRecords table.
     public boolean recordToBasement(int recordID) {
         String addRecordToBasement = "INSERT INTO basementRecords (recordID, consignorID, artist, title, price, consignmentDate, basementDate) VALUES (?, ?, ?, ?, ?, ?, ?)";
         String selectRecordToBasement = "SELECT * FROM recordsInMainRoom WHERE recordID = ? VALUES (?)";
@@ -535,6 +543,7 @@ public class ConsignmentStoreModel {
         return true;
     }
 
+    //moves a record from the recordsInMainRoom table to the returnedRecords table.
     public boolean returnRecord(int recordID) {
         String addReturnedRecord = "INSERT INTO returnedRecords (recordID, consignorID, artist, title, price, consignmentDate, returnedDate) VALUES (?, ?, ?, ?, ?, ?, ?)";
         String selectReturnedRecord = "SELECT * FROM recordsInMainRoom WHERE recordID = ? VALUES (?)";
@@ -595,7 +604,8 @@ public class ConsignmentStoreModel {
         return true;
     }
 
-    public Record buyRecord(int consignorID, String artist, String title, double price, String dateString){
+    //this adds a record to the recordsInMainRoom table.
+    public Record buyRecord(int consignorID, String artist, String title, double price){
         String addRecord = "INSERT INTO recordsInMainRoom (consignorID, artist, title, price, consignmentDate) VALUES (?, ?, ?, ?, ?)";
         Record newRecord = null;
         try {
@@ -646,88 +656,4 @@ public class ConsignmentStoreModel {
         return newRecord;
     }
 
-
-    public LinkedList<Record> updateRecordsList() {
-
-        LinkedList<Record> allRecords = new LinkedList<Record>();
-
-        String displayRecordsInMainRoom = "SELECT * FROM recordsInMainRoom";
-        try {
-            rs = statement.executeQuery(displayRecordsInMainRoom);
-        } catch (SQLException sqle) {
-            System.err.println("Could not retrieve Records");
-            //TODO delete these two lines (they give out too much information).
-            System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
-            sqle.printStackTrace();
-            return null;
-        }
-
-        //puts individual laptop information into strings.
-        try {
-            while (rs.next()) {
-
-                int recordID = rs.getInt("recordID");
-                int consignorID = rs.getInt("consignorID");
-                String artist = rs.getString("artist");
-                String title = rs.getString("title");
-                Double price = rs.getDouble("price");
-                Date consignmentDate = rs.getDate("consignmentDate");
-                Record r = new Record(recordID, consignorID, artist, title, price, consignmentDate);
-                allRecords.add(r);
-
-            }
-        } catch (SQLException sqle) {
-            System.err.println("Error reading results.");
-            //TODO delete these two lines (they give out too much information).
-            System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
-            sqle.printStackTrace();
-            return null;
-
-        }
-        //if we get here, everything should have worked...
-        //Return the list of laptops, which will be empty if there is no data in the database
-        return allRecords;
-    }
-
-    public LinkedList<Consignor> updateConsignorsList() {
-
-        LinkedList<Consignor> allConsignors = new LinkedList<Consignor>();
-
-        String displayAll = "SELECT * FROM consignors";
-        try {
-            rs = statement.executeQuery(displayAll);
-        } catch (SQLException sqle) {
-            System.err.println("Could not retrieve consignors.");
-            //TODO delete these two lines (they give out too much information).
-            System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
-            sqle.printStackTrace();
-            return null;
-        }
-
-        //puts individual laptop information into strings.
-        try {
-            while (rs.next()) {
-                int consignorID = rs.getInt("consignorID");
-                String firstName = rs.getString("firstName");
-                String lastName = rs.getString("lastName");
-                String address = rs.getString("address");
-                String city = rs.getString("city");
-                String state = rs.getString("state");
-                BigDecimal phoneNumber = rs.getBigDecimal("phoneNumber");
-                Double totalPaid = rs.getDouble("totalPaid");
-                Consignor c = new Consignor(consignorID, firstName, lastName, address, city, state, phoneNumber, totalPaid);
-                allConsignors.add(c);
-
-            }
-        } catch (SQLException sqle) {
-            System.err.println("Error reading results.");
-            //TODO delete these two lines (they give out too much information).
-            System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
-            sqle.printStackTrace();
-            return null;
-        }
-        //if we get here, everything should have worked...
-        //Return the list of laptops, which will be empty if there is no data in the database
-        return allConsignors;
-    }
 }

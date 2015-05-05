@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 /**
  * Created by Kevin on 4/21/2015.
  */
+//this creates the ConsignmentStoreViewerGUI. This is the main screen, which will allow the user to navigate to all the different subscreens that are available.
 public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
     private JButton sellRecordsButton;
     private JButton consignorsButton;
@@ -28,6 +29,11 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
         setVisible(true);
         setSize(Toolkit.getDefaultToolkit().getScreenSize());
         this.myController = csc;
+
+        /*All of the Buttons are set up to open up a new GUI with all the necessary components for that GUI. This is
+        so that this screen can be a basic system where the user can choose which they wish to interact with.
+         */
+
         sellRecordsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -64,17 +70,18 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
                 UpdateRecordsGUI updateRecordsGUI = new UpdateRecordsGUI(storeController);
             }
         });
+        buyButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                BuyGUI buyGUI = new BuyGUI(storeController);
+            }
+        });
+        //Closes the program.
         quitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 cleanupViewer();
                 System.exit(0);
-            }
-        });
-        buyButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                BuyGUI buyGUI = new BuyGUI(storeController);
             }
         });
     }

@@ -16,6 +16,7 @@ public class CharityRecordsGUI extends ConsignmentStoreViewer{
     private ConsignmentStoreController storeController;
     private StoreTableModel stm;
 
+    //this shows all the records that have been sent to a charity.
     CharityRecordsGUI(ConsignmentStoreController csc) {
         this.storeController = csc;
         setContentPane(charityRecordsPanel);

@@ -3,7 +3,6 @@ package com.KevinMcClean;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyListener;
 import java.sql.ResultSet;
 
 /**
@@ -20,16 +19,17 @@ public class BuyGUI extends ConsignmentStoreViewer{
     private int consignorID;
     private ResultSet resultSet;
     private StoreTableModel stm;
+    private ConsignmentStoreController storeController;
 
     //this is where the user can buy records from the consignor.
     BuyGUI(ConsignmentStoreController csc){
-        this.myController = csc;
+        this.storeController = csc;
         setContentPane(buyGUIPanel);
         pack();
         setVisible(true);
 
 
-        resultSet = displayConsignorsViewer(myController);
+        resultSet = displayConsignorsViewer(storeController);
         stm = new StoreTableModel(myController, resultSet);
         consignorsTable.setModel(stm);
 
@@ -42,7 +42,7 @@ public class BuyGUI extends ConsignmentStoreViewer{
                 String priceText = priceTextField.getText();
                 String albumTitle = albumTitleTextField.getText();
                 if (!artistText.isEmpty()&& !priceText.isEmpty() && !albumTitle.isEmpty()){
-                    buyRecords(artistText, albumTitle, priceText, consignorID);
+                    buyRecordsViewer(artistText, albumTitle, priceText, consignorID);
                     //TODO have this information turned into a relevant string for use by the database.
                     artistTextField.setText(null);
                     priceTextField.setText(null);
@@ -53,6 +53,7 @@ public class BuyGUI extends ConsignmentStoreViewer{
                 }
             }
         });
+        //closes the screen.
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
