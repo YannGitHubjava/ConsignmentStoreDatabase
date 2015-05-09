@@ -39,16 +39,8 @@ public class NewConsignorsGUI extends ConsignmentStoreViewer{
                 String phoneNumber = phoneNumberTextField.getText();
                 //checks to make sure that all the fields have been filled in.
                 if (!firstNameText.isEmpty() && !lastNameText.isEmpty() && !address.isEmpty() && !city.isEmpty() && !state.isEmpty() && !phoneNumber.isEmpty() ){
-                    Integer phoneInt;
-                    try{
-                        phoneInt = Integer.parseInt(phoneNumber);
-                    }
-                    catch(InputMismatchException ime){
-                        JOptionPane.showMessageDialog(newConsignorsGUIPanel, "Phone number must be all integers, no dashes or letters.");
-                        return;
-                    }
+                    newConsignorViewer(firstNameText, lastNameText, address, city, state, phoneNumber, storeController);
 
-                    newConsignorViewer(firstNameText, lastNameText, address, city, state, phoneInt, storeController);
 
                     firstNameTextField.setText(null);
                     lastNameTextField.setText(null);

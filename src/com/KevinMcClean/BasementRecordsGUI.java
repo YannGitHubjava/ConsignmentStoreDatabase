@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 public class BasementRecordsGUI extends ConsignmentStoreViewer{
     private JButton exitButton;
     private JTable basementRecordsTable;
+    private JPanel basementRecordsGUIPanel;
     private ResultSet resultSet;
     private ConsignmentStoreController storeController;
     private StoreTableModel stm;
@@ -18,20 +19,27 @@ public class BasementRecordsGUI extends ConsignmentStoreViewer{
     //This shows all the records that are in the basementRecords table.
     BasementRecordsGUI(ConsignmentStoreController csc){
         this.storeController = csc;
-        setContentPane(basementRecordsTable);
+        setContentPane(basementRecordsGUIPanel);
         pack();
         setVisible(true);
+        //setDefaultCloseOperation(closeOperation());
 
-        resultSet = storeController.requestDisplayBasementRecords();
+        resultSet = displayBasementRecordsViewer(storeController);
         stm = new StoreTableModel(storeController, resultSet);
         basementRecordsTable.setModel(stm);
 
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                dispose();
+               closeOperation();
             }
         });
 
+    }
+
+    public int closeOperation(){
+        ConsignmentStoreViewerGUI.basementRecordsOpen = false;
+        dispose();
+        return 1;
     }
 }

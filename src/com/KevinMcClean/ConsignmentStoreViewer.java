@@ -2,7 +2,9 @@ package com.KevinMcClean;
 
 import javax.swing.*;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -13,11 +15,10 @@ import java.util.Date;
 public class ConsignmentStoreViewer extends JFrame{
     ConsignmentStoreController myController;
     private ResultSet resultSet;
+    protected final static Double NOT_A_DOUBLE = -10.00;
+    protected final static int NOT_AN_INT = -10;
 
     ConsignmentStoreViewer(){
-
-
-
     }
 
     ConsignmentStoreViewer(ConsignmentStoreController csc){
@@ -26,9 +27,8 @@ public class ConsignmentStoreViewer extends JFrame{
     }
 
     //This has the ConsignmentStoreController request that the database add a record to the recordsInMainRoom table.
-    public void buyRecordsViewer(String artist, String title, String price, int consignorID){
-        Double doublePrice = Double.parseDouble(price);
-        myController.requestBuyRecords(artist, title, doublePrice, consignorID);
+    public void buyRecordsViewer(String artist, String title, Double price, int consignorID, ConsignmentStoreController csc){
+        csc.requestBuyRecords(artist, title, price, consignorID);
     }
 
     //This has the ConsignmentStoreController request that the database shut down any open connections.
@@ -36,15 +36,20 @@ public class ConsignmentStoreViewer extends JFrame{
         myController.requestCleanUp();
     }
 
+    public ResultSet displayBasementRecordsViewer(ConsignmentStoreController csc){
+        resultSet = csc.requestTableDisplay("basementRecords");
+        return resultSet;
+    }
+
     //This has the ConsignmentStoreController request that the database display all the records in the charityRecords table.
     public ResultSet displayCharityRecordsViewer(ConsignmentStoreController csc){
-        resultSet = csc.requestDisplayCharityRecords();
+        resultSet = csc.requestTableDisplay("charityRecords");
         return resultSet;
     }
 
     //This has the ConsignmentStoreController request that the database add a record to the recordsInMainRoom table.
     public ResultSet displayConsignorsViewer(ConsignmentStoreController csc){
-        resultSet = csc.requestDisplayConsignors();
+        resultSet = csc.requestTableDisplay("consignors");
         return resultSet;
     }
 
@@ -55,14 +60,19 @@ public class ConsignmentStoreViewer extends JFrame{
     }
 
     //This has the ConsignmentStoreController request that the database display all the records in the recordsInMainRoom table.
-    public ResultSet displayRecordsinMainRoomViewer(ConsignmentStoreController csc){
-        resultSet = csc.requestDisplayRecordsinMainRoom();
+    public ResultSet displayRecordsInMainRoomViewer(ConsignmentStoreController csc){
+        resultSet = csc.requestTableDisplay("mainRoomRecords");
         return resultSet;
     }
 
     //This has the ConsignmentStoreController request that the database display all the records in the soldRecords table.
     public ResultSet displaySoldRecordsViewer(ConsignmentStoreController csc){
-        resultSet = csc.requestDisplaySoldRecords();
+        resultSet = csc.requestTableDisplay("soldRecords");
+        return resultSet;
+    }
+
+    public ResultSet displayReturnedRecordsViewer(ConsignmentStoreController csc){
+        resultSet = csc.requestTableDisplay("returnedRecords");
         return resultSet;
     }
 
@@ -73,35 +83,120 @@ public class ConsignmentStoreViewer extends JFrame{
     }
 
     //This has the ConsignmentStoreController request that the database add a consignor to the consignors table.
-    public void newConsignorViewer(String firstName, String lastName, String address, String city, String state, Integer phoneNo, ConsignmentStoreController csc){
+    public void newConsignorViewer(String firstName, String lastName, String address, String city, String state, String phoneNo, ConsignmentStoreController csc){
         csc.requestNewConsignor(firstName, lastName, address, city, state, phoneNo);
     }
 
     //This has the ConsignmentStoreController request that the database sell a records, which moves it from its...
     //...table to the soldRecords table, records the sale in the sales table, and deletes it from its original table.
-    public boolean recordSaleViewer(int recordID){
-        boolean recordSale = myController.requestRecordSale(recordID);
+    public boolean recordSaleViewer(int recordID, ConsignmentStoreController csc){
+        boolean recordSale = csc.requestRecordSale(recordID);
         return recordSale;
     }
 
     //This has the ConsignmentStoreController request that the database gives a records to charity, which moves it from...
     // its basementRecords table to the charityRecords table.
-    public boolean recordToCharityViewer(int recordID){
-        boolean recordToCharity = myController.requestRecordToCharity(recordID);
+    public boolean recordToCharityViewer(int recordID, ConsignmentStoreController csc){
+        boolean recordToCharity = csc.requestRecordToCharity(recordID);
         return recordToCharity;
     }
 
+
     //This has the ConsignmentStoreController request that the database returns a record to the consignor, which moves it from...
     // its recordsInMainRoom table to the returnedRecords table.
-    public boolean returnRecordViewer(int recordID){
-        boolean returnRecord = myController.requestReturnRecord(recordID);
+    public boolean returnRecordToConsignorViewer(int recordID, ConsignmentStoreController csc){
+        boolean returnRecord = csc.requestReturnRecord(recordID);
         return returnRecord;
     }
 
     //This has the ConsignmentStoreController request that the database move a record to the basement, which moves it from...
     // its recordsInMainRoom table to the basementRecords table.
-    public boolean recordToBasementViewer(int recordID){
-        boolean recordToBasement = myController.requestRecordToBasement(recordID);
+    public boolean recordToBasementViewer(int recordID, ConsignmentStoreController csc){
+        boolean recordToBasement = csc.requestRecordToBasement(recordID);
         return recordToBasement;
+    }
+    public ResultSet searchByArtistForBasementViewer(String artist, ConsignmentStoreController csc){
+        resultSet = csc.requestSearchByArtist("basementRecords", artist);
+        return resultSet;
+    }
+
+    public ResultSet searchByArtistForMainRoomViewer(String artist, ConsignmentStoreController csc){
+        resultSet = csc.requestSearchByArtist("mainRoomRecords", artist);
+        return resultSet;
+    }
+
+    public ResultSet searchByArtistAndTitleForBasementViewer(String artist, String title, ConsignmentStoreController csc){
+        resultSet = csc.requestSearchByArtistAndTitle("basementRecords", artist, title);
+        return resultSet;
+    }
+
+    public ResultSet searchByArtistAndTitleForMainRoomViewer(String artist, String title, ConsignmentStoreController csc){
+        resultSet = csc.requestSearchByArtistAndTitle("mainRoomRecords", artist, title);
+        return resultSet;
+    }
+
+    public ResultSet searchByTitleForBasementViewer(String title, ConsignmentStoreController csc){
+        resultSet = csc.requestSearchByTitle("basementRecords", title);
+        return resultSet;
+    }
+
+    public ResultSet searchByTitleForMainRoomViewer(String title, ConsignmentStoreController csc){
+        resultSet = csc.requestSearchByTitle("mainRoomRecords", title);
+        return resultSet;
+    }
+
+    public String ivCheckNameForThe(String name){
+
+        if (name.startsWith("The ")){
+            String splitName[] = name.split(" ");
+            String changedName = "";
+            for (int i = 1; i < splitName.length; i++){
+                changedName = changedName + splitName[i];
+            }
+            changedName = changedName + ", The";
+            return changedName;
+        }
+        else {
+            return name;
+        }
+    }
+
+    public boolean ivCheckPhoneNo(String phoneNo){
+        try {
+            Integer phoneNoInt = Integer.parseInt(phoneNo);
+        }
+        catch(NumberFormatException nfe){
+            return false;
+        }
+        return true;
+    }
+
+    public Double ivIsPriceDouble(String price){
+        Double priceDouble;
+        try{
+            priceDouble = Double.parseDouble(price);
+
+        }
+        catch(NumberFormatException nfe){
+            return NOT_A_DOUBLE;
+        }
+        return priceDouble;
+    }
+
+    public int getID(String columnName, int row, JTable table, ResultSet rs){
+        int id = NOT_AN_INT;
+        int column;
+        Object valueAt;
+        String valueString;
+        try {
+            column = (rs.findColumn(columnName)-1);
+            valueAt = table.getValueAt(row, column);
+            valueString = valueAt.toString();
+            id = Integer.parseInt(valueString);
+        }
+        catch (SQLException sqle){
+
+        }
+        return id;
     }
 }

@@ -10,16 +10,32 @@ import java.awt.event.ActionListener;
  */
 //this creates the ConsignmentStoreViewerGUI. This is the main screen, which will allow the user to navigate to all the different subscreens that are available.
 public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
-    private JButton sellRecordsButton;
-    private JButton consignorsButton;
-    private JButton recordsInStoreButton;
-    private JButton updateRecordsButton;
-    private JButton quitButton;
     private JPanel consignmentStoreViewerGUIPanel;
+
     private JButton buyButton;
+    private JButton consignorsButton;
+    private JButton quitButton;
     private JButton recordsInBasementButton;
+    private JButton recordsInStoreButton;
     private JButton recordsGivenToCharityButton;
+    private JButton recordsReturnedToConsignorButton;
+    private JButton soldRecordsButton;
+    private JButton updateRecordsButton;
+    private JButton seachButton;
+
     private ConsignmentStoreController storeController;
+
+    protected static boolean basementRecordsOpen = false;
+    protected static boolean buyGUIOpen = false;
+    protected static boolean charityGUIOpen = false;
+    protected static boolean cosignorsGUIOpen = false;
+    protected static boolean mainRoomRecordsOpen = false;
+    protected static boolean returnedRecordsGUIOpen = false;
+    protected static boolean searchRecordsGUIOpen = false;
+    protected static boolean soldRecordsGUIOpen = false;
+    protected static boolean updateRecordsGUIOpen = false;
+
+
 
 
     ConsignmentStoreViewerGUI(ConsignmentStoreController csc){
@@ -34,46 +50,22 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
         so that this screen can be a basic system where the user can choose which they wish to interact with.
          */
 
-        sellRecordsButton.addActionListener(new ActionListener() {
+        buyButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SellGUI sellGUI = new SellGUI(storeController);
+                if (!buyGUIOpen) {
+                    buyGUIOpen = true;
+                    BuyGUI buyGUI = new BuyGUI(storeController);
+                }
             }
         });
         consignorsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ConsignorsGUI consignorsGUI = new ConsignorsGUI(storeController);
-            }
-        });
-        recordsGivenToCharityButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                CharityRecordsGUI crg = new CharityRecordsGUI(storeController);
-            }
-        });
-        recordsInBasementButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                BasementRecordsGUI brg = new BasementRecordsGUI(storeController);
-            }
-        });
-        recordsInStoreButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                RecordsInStoreGUI recordsInStoreGUI = new RecordsInStoreGUI(storeController);
-            }
-        });
-        updateRecordsButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                UpdateRecordsGUI updateRecordsGUI = new UpdateRecordsGUI(storeController);
-            }
-        });
-        buyButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                BuyGUI buyGUI = new BuyGUI(storeController);
+                if(!cosignorsGUIOpen) {
+                    cosignorsGUIOpen = true;
+                    ConsignorsGUI consignorsGUI = new ConsignorsGUI(storeController);
+                }
             }
         });
         //Closes the program.
@@ -84,5 +76,73 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
                 System.exit(0);
             }
         });
+        recordsGivenToCharityButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(!charityGUIOpen) {
+                    charityGUIOpen = true;
+                    CharityRecordsGUI crg = new CharityRecordsGUI(storeController);
+                }
+            }
+        });
+        recordsInBasementButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!basementRecordsOpen) {
+                    basementRecordsOpen = true;
+                    BasementRecordsGUI brg = new BasementRecordsGUI(storeController);
+                }
+            }
+        });
+        recordsInStoreButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!mainRoomRecordsOpen) {
+                    mainRoomRecordsOpen = true;
+                    RecordsInMainRoomGUI recordsInStoreGUI = new RecordsInMainRoomGUI(storeController);
+                }
+            }
+        });
+        recordsReturnedToConsignorButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!returnedRecordsGUIOpen) {
+                    returnedRecordsGUIOpen = true;
+                    ReturnToConsignorGUI rtcgui = new ReturnToConsignorGUI(storeController);
+                }
+            }
+        });
+
+        seachButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(!searchRecordsGUIOpen){
+                    searchRecordsGUIOpen = true;
+                    SearchGUI sgui = new SearchGUI(storeController);
+                }
+            }
+        });
+
+        soldRecordsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(!soldRecordsGUIOpen){
+                    soldRecordsGUIOpen = true;
+                    SoldRecordsGUI srgui = new SoldRecordsGUI(storeController);
+                }
+            }
+        });
+
+        updateRecordsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!updateRecordsGUIOpen) {
+                    updateRecordsGUIOpen = true;
+                    UpdateRecordsGUI updateRecordsGUI = new UpdateRecordsGUI(storeController);
+                }
+            }
+        });
+
+
     }
 }

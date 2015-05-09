@@ -25,38 +25,15 @@ public class ConsignmentStoreController {
     }
 
     //request that the database return a list of the records in the bargain basement.
-    public ResultSet requestDisplayBasementRecords(){
-        resultSet = model.displayBasementRecords();
+    public ResultSet requestTableDisplay(String tableName){
+        resultSet = model.tableDisplay(tableName);
         return resultSet;
     }
 
-    ////request that the database return a list of the records that have been given to a charity.
-    public ResultSet requestDisplayCharityRecords(){
-        resultSet = model.displayCharityRecords();
-        return resultSet;
-    }
-
-    //request that the database return a list of the consignors.
-    public ResultSet requestDisplayConsignors(){
-        resultSet = model.displayConsignors();
-        return resultSet;
-    }
 
     //request that the database return a list of the records in the main room that have been in the store for over a month.
     public ResultSet requestDisplayMonthOldRecords(){
         resultSet = model.displayMonthOldRecords();
-        return resultSet;
-    }
-
-    //request that the database return a list of the records in the main room.
-    public ResultSet requestDisplayRecordsinMainRoom(){
-        resultSet = model.displayRecordsInMainRoom();
-        return resultSet;
-    }
-
-    //request that the database return a list of the records that have been sold.
-    public ResultSet requestDisplaySoldRecords(){
-        resultSet = model.displaySoldRecords();
         return resultSet;
     }
 
@@ -67,7 +44,7 @@ public class ConsignmentStoreController {
     }
 
     //this method requests that a new consignor be added to the database.
-    public void requestNewConsignor(String firstName, String lastName, String address, String city, String state, Integer phoneNo){
+    public void requestNewConsignor(String firstName, String lastName, String address, String city, String state, String phoneNo){
         model.newConsignor(firstName,lastName, address, city, state, phoneNo);
     }
 
@@ -85,7 +62,7 @@ public class ConsignmentStoreController {
 
     //this method sends a request that a record be removed from the recordsInStore table and put into the returnedRecords table.
     public boolean requestReturnRecord(int recordID){
-        boolean recordReturn = model.returnRecord(recordID);
+        boolean recordReturn = model.recordReturned(recordID);
         return recordReturn;
     }
 
@@ -93,6 +70,21 @@ public class ConsignmentStoreController {
     public boolean requestRecordToBasement(int recordID){
         boolean recordToBasement = model.recordToBasement(recordID);
         return recordToBasement;
+    }
+
+    public ResultSet requestSearchByArtist(String table, String artist){
+        resultSet = model.searchByArtist(table, artist);
+        return resultSet;
+    }
+
+    public ResultSet requestSearchByArtistAndTitle(String table, String artist, String title){
+        resultSet = model.searchByArtistAndTitle(table, artist, title);
+        return resultSet;
+    }
+
+    public ResultSet requestSearchByTitle(String table, String title){
+        resultSet = model.searchByTitle(table, title);
+        return resultSet;
     }
 
 }

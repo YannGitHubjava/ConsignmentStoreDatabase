@@ -59,7 +59,16 @@ public class StoreTableModel extends AbstractTableModel{
         }
     }
 
-
+    @Override
+    public String getColumnName(int column) {
+        try {
+            return resultSet.getMetaData().getColumnName(column + 1);
+        }
+        catch(SQLException sqle){
+            System.out.println("Could not fetch column " + column + 1);
+            return "?";
+        }
+    }
 
     @Override
     public int getRowCount() {

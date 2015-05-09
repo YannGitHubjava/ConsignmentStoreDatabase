@@ -7,12 +7,13 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * Created by Kevin on 4/21/2015.
  */
 //Show the recordsInMainRoom table.
-public class RecordsInStoreGUI extends ConsignmentStoreViewer {
+public class RecordsInMainRoomGUI extends ConsignmentStoreViewer {
     private JPanel recordsGUIPanel;
     private JTable recordsTable;
     StoreTableModel stm;
@@ -21,19 +22,19 @@ public class RecordsInStoreGUI extends ConsignmentStoreViewer {
     private JButton sellButton;
     private ConsignmentStoreController storeController;
     private ResultSet resultSet;
+    Integer recordID;
 
-    RecordsInStoreGUI(ConsignmentStoreController csc) {
+    RecordsInMainRoomGUI(ConsignmentStoreController csc) {
         setContentPane(recordsGUIPanel);
         pack();
         setVisible(true);
         this.storeController = csc;
 
         //sets up the recordsTable for display.
-        resultSet = displayRecordsinMainRoomViewer(storeController);
+        resultSet = displayRecordsInMainRoomViewer(storeController);
         stm = new StoreTableModel(storeController, resultSet);
         recordsTable.setModel(stm);
         recordsTable.setGridColor(Color.black);
-
 
         //goes to the BuyGUI.
         buyButton.addActionListener(new ActionListener() {
@@ -47,13 +48,19 @@ public class RecordsInStoreGUI extends ConsignmentStoreViewer {
         sellButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                recordsTable.getColumnCount();
+
                 int row = recordsTable.getSelectedRow();
-                Object valueAt = recordsTable.getValueAt(row, 0);
-                String valueString = valueAt.toString();
-                System.out.println(valueString);
-                //Integer recordID = Integer.parseInt(valueString);
-                //recordSaleViewer(recordID);
+                recordID = getID("RECORD_ID", row,recordsTable, resultSet);
+
+                if (recordID == NOT_AN_INT)
+                {
+                    JOptionPane.showMessageDialog(recordsGUIPanel, "Could not sell this record. Please make sure you have selected an album.");
+                }
+                recordSaleViewer(recordID, storeController);
+                resultSet = displayRecordsInMainRoomViewer(storeController);
+                stm.updateResultSet(resultSet);
+                recordsTable.setModel(stm);
+
             }
         });
 
@@ -61,6 +68,7 @@ public class RecordsInStoreGUI extends ConsignmentStoreViewer {
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                ConsignmentStoreViewerGUI.mainRoomRecordsOpen = false;
                 dispose();
             }
         });

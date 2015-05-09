@@ -35,6 +35,7 @@ public class SoldRecordsGUI extends ConsignmentStoreViewer{
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                ConsignmentStoreViewerGUI.soldRecordsGUIOpen = false;
                 dispose();
             }
         });

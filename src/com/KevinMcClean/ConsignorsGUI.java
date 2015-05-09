@@ -16,30 +16,32 @@ public class ConsignorsGUI extends ConsignmentStoreViewer{
     private JPanel consignorsGUIPanel;
     private ResultSet resultSet;
     private StoreTableModel stm;
+    private ConsignmentStoreController storeController;
 
 
     ConsignorsGUI(ConsignmentStoreController csc){
-        this.myController = csc;
+        this.storeController = csc;
         setContentPane(consignorsGUIPanel);
         pack();
         setVisible(true);
 
         //sets the consignorsTable to show that the consignors.
-        resultSet = displayConsignorsViewer(myController);
-        stm = new StoreTableModel(myController, resultSet);
+        resultSet = displayConsignorsViewer(storeController);
+        stm = new StoreTableModel(storeController, resultSet);
         consignorsTable.setModel(stm);
 
         //Goes to the newConsignorsGUI GUI.
         newConsignorsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                NewConsignorsGUI newConsignorsGUI = new NewConsignorsGUI(myController);
+                NewConsignorsGUI newConsignorsGUI = new NewConsignorsGUI(storeController);
             }
         });
         //closes the screen.
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                ConsignmentStoreViewerGUI.cosignorsGUIOpen = false;
                 dispose();
             }
         });

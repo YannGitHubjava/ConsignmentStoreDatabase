@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * Created by Kevin on 4/21/2015.
@@ -42,8 +43,36 @@ public class BuyGUI extends ConsignmentStoreViewer{
                 String priceText = priceTextField.getText();
                 String albumTitle = albumTitleTextField.getText();
                 if (!artistText.isEmpty()&& !priceText.isEmpty() && !albumTitle.isEmpty()){
-                    buyRecordsViewer(artistText, albumTitle, priceText, consignorID);
-                    //TODO have this information turned into a relevant string for use by the database.
+                    int row = consignorsTable.getSelectedRow();
+                    int column = -1;
+                    Object valueAt;
+                    String valueString;
+                    try {
+                        column = (resultSet.findColumn("CONSIGNOR_ID")-1);
+                        valueAt = consignorsTable.getValueAt(row, column);
+                        valueString = valueAt.toString();
+                        consignorID = Integer.parseInt(valueString);
+                    }
+                    catch (SQLException sqle){
+                        JOptionPane.showMessageDialog(buyGUIPanel, "Could not fine the \"Consignor Id\" column.");
+                        return;
+                    }
+                    catch (NumberFormatException nfe){
+                        JOptionPane.showMessageDialog(buyGUIPanel, "Please select a consignor.");
+                        return;
+                    }
+
+                    artistText = ivCheckNameForThe(artistText);
+                    albumTitle = ivCheckNameForThe(albumTitle);
+
+                    Double priceDouble = ivIsPriceDouble(priceText);
+                    if(priceDouble == NOT_A_DOUBLE){
+                        JOptionPane.showMessageDialog(buyGUIPanel, "This is not a price. Please try again.");
+                        return;
+                    }
+
+
+                    buyRecordsViewer(artistText, albumTitle, priceDouble, consignorID, storeController);
                     artistTextField.setText(null);
                     priceTextField.setText(null);
                     albumTitleTextField.setText(null);
@@ -57,6 +86,7 @@ public class BuyGUI extends ConsignmentStoreViewer{
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                ConsignmentStoreViewerGUI.buyGUIOpen = false;
                 dispose();
             }
         });

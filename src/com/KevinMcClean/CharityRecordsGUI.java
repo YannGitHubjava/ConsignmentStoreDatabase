@@ -23,14 +23,15 @@ public class CharityRecordsGUI extends ConsignmentStoreViewer{
         pack();
         setVisible(true);
 
-        resultSet = storeController.requestDisplayCharityRecords();
-        //resultSet = displayCharityRecordsViewer(storeController);
+
+        resultSet = displayCharityRecordsViewer(storeController);
         stm = new StoreTableModel(storeController, resultSet);
         charityRecordsTable.setModel(stm);
 
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                ConsignmentStoreViewerGUI.charityGUIOpen = false;
                 dispose();
             }
         });
