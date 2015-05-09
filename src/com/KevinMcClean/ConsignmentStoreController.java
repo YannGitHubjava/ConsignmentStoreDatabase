@@ -30,7 +30,6 @@ public class ConsignmentStoreController {
         return resultSet;
     }
 
-
     //request that the database return a list of the records in the main room that have been in the store for over a month.
     public ResultSet requestDisplayMonthOldRecords(){
         resultSet = model.displayMonthOldRecords();
@@ -49,8 +48,8 @@ public class ConsignmentStoreController {
     }
 
     //this method requests that a new record sale be added to the database. It also moves the record from its table to the soldRecords table.
-    public boolean requestRecordSale(int recordID){
-        boolean recordSale = model.recordSales(recordID);
+    public boolean requestRecordSale(int recordID, String table){
+        boolean recordSale = model.recordSales(recordID, table);
         return recordSale;
     }
 

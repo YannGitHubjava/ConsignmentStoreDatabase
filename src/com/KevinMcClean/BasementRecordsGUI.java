@@ -10,11 +10,19 @@ import java.sql.ResultSet;
  */
 public class BasementRecordsGUI extends ConsignmentStoreViewer{
     private JButton exitButton;
+    private JButton sellButton;
+
     private JTable basementRecordsTable;
+
     private JPanel basementRecordsGUIPanel;
+
     private ResultSet resultSet;
+
     private ConsignmentStoreController storeController;
+
     private StoreTableModel stm;
+
+    Integer recordID;
 
     //This shows all the records that are in the basementRecords table.
     BasementRecordsGUI(ConsignmentStoreController csc){
@@ -31,15 +39,32 @@ public class BasementRecordsGUI extends ConsignmentStoreViewer{
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-               closeOperation();
+                ConsignmentStoreViewerGUI.basementRecordsOpen = false;
+                dispose();
             }
         });
 
-    }
+        sellButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int row = basementRecordsTable.getSelectedRow();
+                recordID = getID("RECORD_ID", row,basementRecordsTable, resultSet);
+                if (recordID == NOT_AN_INT)
+                {
+                    JOptionPane.showMessageDialog(basementRecordsTable, "Could not sell this record. Please make sure you have selected an album.");
+                }
+                boolean basementSale = recordBasementSaleViewer(recordID, storeController);
+                if(basementSale){
+                    JOptionPane.showMessageDialog(basementRecordsGUIPanel, "Record sold.");
+                }
+                else{
+                    JOptionPane.showMessageDialog(basementRecordsGUIPanel, "Record not sold.");
+                }
+                resultSet = displayRecordsInMainRoomViewer(storeController);
+                stm.updateResultSet(resultSet);
+                basementRecordsTable.setModel(stm);
+            }
+        });
 
-    public int closeOperation(){
-        ConsignmentStoreViewerGUI.basementRecordsOpen = false;
-        dispose();
-        return 1;
     }
 }

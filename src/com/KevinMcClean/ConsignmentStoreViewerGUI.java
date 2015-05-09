@@ -21,7 +21,9 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
     private JButton recordsReturnedToConsignorButton;
     private JButton soldRecordsButton;
     private JButton updateRecordsButton;
+    private JButton salesButton;
     private JButton seachButton;
+
 
     private ConsignmentStoreController storeController;
 
@@ -34,7 +36,7 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
     protected static boolean searchRecordsGUIOpen = false;
     protected static boolean soldRecordsGUIOpen = false;
     protected static boolean updateRecordsGUIOpen = false;
-
+    protected static boolean salesGUIOpen = false;
 
 
 
@@ -113,6 +115,15 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
             }
         });
 
+        salesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(!salesGUIOpen){
+                    salesGUIOpen = true;
+                    SalesGUI salesGUI = new SalesGUI(storeController);
+                }
+            }
+        });
         seachButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

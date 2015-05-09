@@ -56,7 +56,14 @@ public class RecordsInMainRoomGUI extends ConsignmentStoreViewer {
                 {
                     JOptionPane.showMessageDialog(recordsGUIPanel, "Could not sell this record. Please make sure you have selected an album.");
                 }
-                recordSaleViewer(recordID, storeController);
+                boolean mainRoomSale = recordMainRoomSaleViewer(recordID, storeController);
+                if(mainRoomSale){
+                    JOptionPane.showMessageDialog(recordsGUIPanel, "Record sold.");
+                }
+                else{
+                    JOptionPane.showMessageDialog(recordsGUIPanel, "Record not sold.");
+                }
+
                 resultSet = displayRecordsInMainRoomViewer(storeController);
                 stm.updateResultSet(resultSet);
                 recordsTable.setModel(stm);

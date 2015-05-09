@@ -71,6 +71,11 @@ public class ConsignmentStoreViewer extends JFrame{
         return resultSet;
     }
 
+    public ResultSet displaySalesViewer(ConsignmentStoreController csc){
+        resultSet = csc.requestTableDisplay("sales");
+        return resultSet;
+    }
+
     public ResultSet displayReturnedRecordsViewer(ConsignmentStoreController csc){
         resultSet = csc.requestTableDisplay("returnedRecords");
         return resultSet;
@@ -89,8 +94,13 @@ public class ConsignmentStoreViewer extends JFrame{
 
     //This has the ConsignmentStoreController request that the database sell a records, which moves it from its...
     //...table to the soldRecords table, records the sale in the sales table, and deletes it from its original table.
-    public boolean recordSaleViewer(int recordID, ConsignmentStoreController csc){
-        boolean recordSale = csc.requestRecordSale(recordID);
+    public boolean recordMainRoomSaleViewer(int recordID, ConsignmentStoreController csc){
+        boolean recordSale = csc.requestRecordSale(recordID,"mainRoomRecords");
+        return recordSale;
+    }
+
+    public boolean recordBasementSaleViewer(int recordID, ConsignmentStoreController csc){
+        boolean recordSale = csc.requestRecordSale(recordID,"basementRecords");
         return recordSale;
     }
 
@@ -100,7 +110,6 @@ public class ConsignmentStoreViewer extends JFrame{
         boolean recordToCharity = csc.requestRecordToCharity(recordID);
         return recordToCharity;
     }
-
 
     //This has the ConsignmentStoreController request that the database returns a record to the consignor, which moves it from...
     // its recordsInMainRoom table to the returnedRecords table.
