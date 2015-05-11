@@ -12,11 +12,17 @@ import java.sql.ResultSet;
  * Created by Kevin on 5/8/2015.
  */
 public class SalesGUI extends ConsignmentStoreViewer{
+
     private JButton exitButton;
+
     private JTable salesTable;
+
     private JPanel salesGUIPanel;
+
     private ConsignmentStoreController storeController;
+
     private ResultSet resultSet;
+
     private StoreTableModel stm;
 
     SalesGUI(ConsignmentStoreController csc){

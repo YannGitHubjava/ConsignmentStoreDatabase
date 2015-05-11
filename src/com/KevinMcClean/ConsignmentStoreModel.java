@@ -37,6 +37,8 @@ public class ConsignmentStoreModel {
     ResultSet rsDisplayMainRoomRecords = null;
     ResultSet rsTableDisplay = null;
     ResultSet rsConsignorsOwed = null;
+    ResultSet rsCheckConsignors = null;
+    ResultSet rsCountSearch = null;
 
     LinkedList<Statement> allStatements = new LinkedList<Statement>();
 
@@ -60,6 +62,7 @@ public class ConsignmentStoreModel {
     PreparedStatement psSellRecord;
     PreparedStatement psUpdateTable;
     PreparedStatement psYearOldRecords;
+    PreparedStatement psCountSearch;
 
 
 
@@ -182,6 +185,44 @@ public class ConsignmentStoreModel {
             sqle.printStackTrace();
         }
         return rsTableDisplay;
+    }
+
+    public boolean countSearch(String artist, String title){
+        String countSearchSQLStringMainRoom = "SELECT COUNT(*) AS RowCount FROM mainRoomRecords WHERE artist LIKE ? AND title LIKE ? ";// +
+        String countSearchSQLStringBasement = "SELECT COUNT(*) AS RowCount FROM basementRecords WHERE artist LIKE ? AND title LIKE ?";
+        try {
+            psCountSearch = conn.prepareStatement(countSearchSQLStringMainRoom);
+            psCountSearch.setString(1, artist);
+            psCountSearch.setString(2, title);
+
+            rsCountSearch = psCountSearch.executeQuery();
+            int mainRoomRows = 0;
+            while (rsCountSearch.next()) {
+                mainRoomRows = rsCountSearch.getInt("RowCount");
+            }
+            psCountSearch = conn.prepareStatement(countSearchSQLStringBasement);
+            psCountSearch.setString(1, artist);
+            psCountSearch.setString(2, title);
+
+            rsCountSearch = psCountSearch.executeQuery();
+            int basementRows = 0;
+            while (rsCountSearch.next()) {
+                basementRows = rsCountSearch.getInt("RowCount");
+            }
+            System.out.println("Rows: " + (basementRows + mainRoomRows));
+            if(basementRows + mainRoomRows <= 5){
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+        catch(SQLException sqle){
+            System.out.println("Could not fetch the data from RowCount Union.");
+            System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
+            sqle.printStackTrace();
+            return false;
+        }
     }
 
     public ResultSet searchForConsignorOwed(){
@@ -376,9 +417,30 @@ public class ConsignmentStoreModel {
     }
 
     //this has the database send back data on the consignors, which is used for a display in the GUI.
-    public void newConsignor(String firstName, String lastName, String address, String city, String state, String phoneNo) {
+    public boolean newConsignor(String firstName, String lastName, String address, String city, String state, String phoneNo) {
         String newConsignor = "INSERT INTO consignors (first_name, last_name, address, city, state, phone_number, amount_owed, total_paid) VALUES (?, ?, ?, ?, ?, ?, 0, 0)" ;
+
+        rsCheckConsignors = tableDisplay("consignors", "");
+
+
+
         try {
+            while(rsCheckConsignors.next()){
+                String checkFirst = rsCheckConsignors.getString("first_name");
+                String checkLast = rsCheckConsignors.getString("last_name");
+                String checkAddress = rsCheckConsignors.getString("address");
+                String checkCity = rsCheckConsignors.getString("city");
+                String checkState = rsCheckConsignors.getString("state");
+                String checkPhone = rsCheckConsignors.getString("phone_number");
+
+                if(checkFirst.equalsIgnoreCase(firstName) && checkLast.equalsIgnoreCase(lastName) &&
+                        checkAddress.equalsIgnoreCase(address) && checkCity.equalsIgnoreCase(city) && checkState.equalsIgnoreCase(checkState) &&
+                        checkPhone.equalsIgnoreCase(phoneNo)){
+                    return false;
+                }
+            }
+
+
             psNewConsignor = conn.prepareStatement(newConsignor);
             allStatements.add(psNewConsignor);
             psNewConsignor.setString(1, firstName);
@@ -393,9 +455,10 @@ public class ConsignmentStoreModel {
             //TODO delete these two lines (they give out too much information).
             System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
             sqle.printStackTrace();
-            return;
+            return false;
         }
-        System.out.println("Success!");
+        return true;
+
     }
 
     //this lists makes a new sale listing and moves the record into the soldRecords table. It also deletes the table from whichever table it is in.
@@ -423,11 +486,10 @@ public class ConsignmentStoreModel {
                 consignorID = rs.getInt("consignor_id");
                 price = rs.getFloat("price");
                 totalToConsignor = (price *.4f);
-                //String totalToConsignorString = totalToConsignor.toString();
-                //totalToConsignorString.format("%0.2g%n", totalToConsignorString);
-                //Float consignorPay = Float.parseFloat(totalToConsignorString);
-                totalToStore = (price-totalToConsignor);
-                System.out.println("Total to consignor: " + totalToConsignor);
+                String totalToConsignorString = String.format("%.02f", totalToConsignor);
+                Float roundedTotalToConsignor = Float.parseFloat(totalToConsignorString);
+                totalToStore = (price-roundedTotalToConsignor);
+                System.out.println("Total to consignor: " + roundedTotalToConsignor);
                 artist = rs.getString("artist");
                 title = rs.getString("title");
                 java.sql.Date consignmentDate = rs.getDate("consignment_date");
@@ -440,7 +502,7 @@ public class ConsignmentStoreModel {
                 psSellRecord.setDate(3, todaysDate);
                 psSellRecord.setFloat(4, price);
                 psSellRecord.setFloat(5, totalToStore);
-                psSellRecord.setFloat(6, totalToConsignor);
+                psSellRecord.setFloat(6, roundedTotalToConsignor);
                 psSellRecord.execute();
                 System.out.println("Added to sales table.");
 

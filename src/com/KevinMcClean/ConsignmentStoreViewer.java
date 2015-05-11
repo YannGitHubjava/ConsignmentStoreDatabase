@@ -42,6 +42,10 @@ public class ConsignmentStoreViewer extends JFrame{
         return resultSet;
     }
 
+    public boolean countSearchViewer(String artist, String title, ConsignmentStoreController csc){
+        return csc.requestCountSearch(artist, title);
+    }
+
     public ResultSet displayBasementRecordsViewer(ConsignmentStoreController csc){
         resultSet = csc.requestTableDisplay("basementRecords", " ORDER BY artist, title");
         return resultSet;
@@ -94,8 +98,8 @@ public class ConsignmentStoreViewer extends JFrame{
     }
 
     //This has the ConsignmentStoreController request that the database add a consignor to the consignors table.
-    public void newConsignorViewer(String firstName, String lastName, String address, String city, String state, String phoneNo, ConsignmentStoreController csc){
-        csc.requestNewConsignor(firstName, lastName, address, city, state, phoneNo);
+    public boolean newConsignorViewer(String firstName, String lastName, String address, String city, String state, String phoneNo, ConsignmentStoreController csc){
+        return csc.requestNewConsignor(firstName, lastName, address, city, state, phoneNo);
     }
 
     //This has the ConsignmentStoreController request that the database sell a records, which moves it from its...
@@ -168,6 +172,9 @@ public class ConsignmentStoreViewer extends JFrame{
     public boolean ivCheckPhoneNo(String phoneNo){
         try {
             Integer phoneNoInt = Integer.parseInt(phoneNo);
+            if(phoneNo.length() != 10){
+                return false;
+            }
         }
         catch(NumberFormatException nfe){
             return false;

@@ -29,6 +29,10 @@ public class ConsignmentStoreController {
         return resultSet;
     }
 
+    public boolean requestCountSearch(String artist, String title){
+        return model.countSearch(artist, title);
+    }
+
     //request that the database return a list of the records in the bargain basement.
     public ResultSet requestTableDisplay(String tableName, String queryString){
         resultSet = model.tableDisplay(tableName, queryString);
@@ -48,8 +52,8 @@ public class ConsignmentStoreController {
     }
 
     //this method requests that a new consignor be added to the database.
-    public void requestNewConsignor(String firstName, String lastName, String address, String city, String state, String phoneNo){
-        model.newConsignor(firstName,lastName, address, city, state, phoneNo);
+    public boolean requestNewConsignor(String firstName, String lastName, String address, String city, String state, String phoneNo){
+        return model.newConsignor(firstName,lastName, address, city, state, phoneNo);
     }
 
     //this method requests that a new record sale be added to the database. It also moves the record from its table to the soldRecords table.

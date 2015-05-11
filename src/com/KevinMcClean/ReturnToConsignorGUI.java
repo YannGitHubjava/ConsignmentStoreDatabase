@@ -14,10 +14,15 @@ import java.sql.ResultSet;
  */
 public class ReturnToConsignorGUI extends ConsignmentStoreViewer{
     private JButton exitButton;
+
     private JTable returnedRecordsTable;
+
     private JPanel returnToConsignorGUIPanel;
+
     private ConsignmentStoreController storeController;
+
     private ResultSet resultSet;
+
     private StoreTableModel stm;
 
     ReturnToConsignorGUI(ConsignmentStoreController csc){
@@ -33,6 +38,7 @@ public class ReturnToConsignorGUI extends ConsignmentStoreViewer{
         returnedRecordsTable.setGridColor(Color.black);
 
         //from http://stackoverflow.com/questions/4737495/disposing-and-closing-windows-in-java.
+        //closes the window.
         this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -41,6 +47,7 @@ public class ReturnToConsignorGUI extends ConsignmentStoreViewer{
             }
         });
 
+        //closes the window.
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

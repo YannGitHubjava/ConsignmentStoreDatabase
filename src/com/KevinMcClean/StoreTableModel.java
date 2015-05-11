@@ -94,16 +94,40 @@ public class StoreTableModel extends AbstractTableModel{
 
     @Override
     public Object getValueAt(int row, int col) {
-        try{
-            //  System.out.println("get value at, row = " +row);
-            resultSet.absolute(row+1);
-            Object o = resultSet.getObject(col+1);
-            return o.toString();
-        }catch (SQLException se) {
-            System.out.println(se);
-            //se.printStackTrace();
-            return se.toString();
 
+        try {
+            //  System.out.println("get value at, row = " +row);
+            resultSet.absolute(row + 1);
+            Object o = resultSet.getObject(col + 1);
+            String returnString;
+            if (resultSet.getMetaData().getColumnName(col + 1).equalsIgnoreCase("amount_owed") ||
+                    resultSet.getMetaData().getColumnName(col + 1).equalsIgnoreCase("total_paid") ||
+                    resultSet.getMetaData().getColumnName(col + 1).equalsIgnoreCase("price") ||
+                    resultSet.getMetaData().getColumnName(col + 1).equalsIgnoreCase("total_to_store") ||
+                    resultSet.getMetaData().getColumnName(col + 1).equalsIgnoreCase("total_to_consignor")) {
+
+                Float f = Float.parseFloat(o.toString());
+                returnString = String.format("%.02f", f);
+                return returnString;
+
+            } else {
+                if(resultSet.getMetaData().getColumnName(col + 1).equalsIgnoreCase("phone_number")){
+                    String phoneNumber = o.toString();
+                    StringBuilder sb = new StringBuilder(phoneNumber);
+                    sb.insert(3, "-");
+                    sb.insert(6, "-");
+                    returnString = sb.toString();
+                    //System.out.println(returnString);
+                    return returnString;
+                }
+                returnString = o.toString();
+                return returnString;
+
+            }
+        } catch (SQLException se) {
+            System.out.println(se);
+            se.printStackTrace();
+            return se.toString();
         }
     }
 }

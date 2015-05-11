@@ -16,13 +16,13 @@ public class SearchGUI extends ConsignmentStoreViewer{
     private JButton quitButton;
     private JButton searchButton;
     private JButton sellBasementButton;
+    private JButton sellMainRoomButton;
 
     private JTable basementSearchTable;
     private JTable mainRoomSearchTable;
 
     private JTextField artistTextField;
     private JTextField titleTextField;
-    private JButton sellMainRoomButton;
 
     private ConsignmentStoreController storeController;
 
@@ -51,7 +51,7 @@ public class SearchGUI extends ConsignmentStoreViewer{
         });
 
 
-
+        //exits this window.
         quitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -60,11 +60,16 @@ public class SearchGUI extends ConsignmentStoreViewer{
             }
         });
 
+        //searches for a record.
         searchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
+                //this takes the information and putt it into various search fields that produce the results for both the basement and the main room.
                 String artist = artistTextField.getText();
                 String title = titleTextField.getText();
+
+                //broken out by the conditions of what fields have been filled in.
                 if (!artist.isEmpty() && !title.isEmpty()){
                     artist = "%" + artist + "%";
                     title = "%" + title + "%";
@@ -103,6 +108,7 @@ public class SearchGUI extends ConsignmentStoreViewer{
             }
         });
 
+        //sells the selected album.
         sellBasementButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -126,6 +132,7 @@ public class SearchGUI extends ConsignmentStoreViewer{
             }
         });
 
+        //sells a record in the main room.
         sellMainRoomButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

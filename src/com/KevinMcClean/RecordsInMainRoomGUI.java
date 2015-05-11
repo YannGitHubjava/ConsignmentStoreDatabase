@@ -17,13 +17,19 @@ import java.sql.SQLException;
 //Show the recordsInMainRoom table.
 public class RecordsInMainRoomGUI extends ConsignmentStoreViewer {
     private JPanel recordsGUIPanel;
+
     private JTable recordsTable;
-    StoreTableModel stm;
+
+    private StoreTableModel stm;
+
     private JButton buyButton;
     private JButton exitButton;
     private JButton sellButton;
+
     private ConsignmentStoreController storeController;
+
     private ResultSet resultSet;
+
     Integer recordID;
 
     RecordsInMainRoomGUI(ConsignmentStoreController csc) {
@@ -39,6 +45,7 @@ public class RecordsInMainRoomGUI extends ConsignmentStoreViewer {
         recordsTable.setGridColor(Color.black);
 
         //from http://stackoverflow.com/questions/4737495/disposing-and-closing-windows-in-java.
+        //closes the GUI.
         this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -63,17 +70,17 @@ public class RecordsInMainRoomGUI extends ConsignmentStoreViewer {
             @Override
             public void actionPerformed(ActionEvent e) {
 
+                //makes sure a record is chosen.
                 int row = recordsTable.getSelectedRow();
                 boolean isRowSelected = ivIsRowSelected(row);
                 if(!isRowSelected) {
-                    JOptionPane.showMessageDialog(recordsGUIPanel, "You must select a record to sell!");
+                    JOptionPane.showMessageDialog(recordsGUIPanel, "You must select a record to sell.");
                     return;
                 }
+
                 recordID = getID("RECORD_ID", row,recordsTable, resultSet);
 
-                if (recordID == NOT_AN_INT) {
-                    JOptionPane.showMessageDialog(recordsGUIPanel, "Could not sell this record. Please make sure you have selected an album.");
-                }
+                //attempts to sell a record from the mainRoomRecords table, and lets the user know if it was successful.
                 boolean mainRoomSale = recordMainRoomSaleViewer(recordID, storeController);
                 if(mainRoomSale){
                     JOptionPane.showMessageDialog(recordsGUIPanel, "Record sold.");
@@ -82,13 +89,14 @@ public class RecordsInMainRoomGUI extends ConsignmentStoreViewer {
                     JOptionPane.showMessageDialog(recordsGUIPanel, "Record not sold.");
                 }
 
+                //resets the table to show the results.
                 resultSet = displayRecordsInMainRoomViewer(storeController);
                 stm = new StoreTableModel(storeController, resultSet);
                 recordsTable.setModel(stm);
             }
         });
 
-        //closes the screen.
+        //closes this GUI window.
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

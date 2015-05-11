@@ -64,10 +64,14 @@ public class BuyGUI extends ConsignmentStoreViewer{
                         return;
                     }
                     consignorID = getID("CONSIGNOR_ID", row, consignorsTable, resultSet);
-                    System.out.println("ConsignorID: " +consignorID);
+                    if(consignorID == NOT_AN_INT){
+                        JOptionPane.showMessageDialog(buyGUIPanel, "Please select a consignor NOT_AN_INT");
+                        return;
+                    }
 
                     artistText = ivCheckNameForThe(artistText);
                     albumTitle = ivCheckNameForThe(albumTitle);
+
 
                     Double priceDouble = ivIsPriceDouble(priceText);
                     if(priceDouble == NOT_A_DOUBLE){
@@ -75,6 +79,11 @@ public class BuyGUI extends ConsignmentStoreViewer{
                         return;
                     }
 
+                    boolean tooManyCopies = countSearchViewer(artistText, albumTitle, storeController);
+                    if(!tooManyCopies){
+                        JOptionPane.showMessageDialog(buyGUIPanel, "There are already 5 copies in the store. Cannot purchase another.");
+                        return;
+                    }
 
                     buyRecordsViewer(artistText, albumTitle, priceDouble, consignorID, storeController);
                     artistTextField.setText(null);

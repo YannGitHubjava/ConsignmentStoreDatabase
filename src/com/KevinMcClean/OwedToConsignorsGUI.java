@@ -14,8 +14,11 @@ import java.sql.SQLException;
  */
 public class OwedToConsignorsGUI extends ConsignmentStoreViewer{
     private JPanel owedToConsignorsGUIPanel;
+
     private JTable consignorsOwedTable;
+
     private JTextField paymentTextField;
+
     private JButton payConsignorButton;
     private JButton exitButton;
 
@@ -31,6 +34,7 @@ public class OwedToConsignorsGUI extends ConsignmentStoreViewer{
         pack();
         setVisible(true);
 
+        //displays the table of Consignors whom the store owes money.
         resultSet = consignorsOwedViewer(storeController);
         stm = new StoreTableModel(storeController, resultSet);
         consignorsOwedTable.setModel(stm);
@@ -45,9 +49,13 @@ public class OwedToConsignorsGUI extends ConsignmentStoreViewer{
             }
         });
 
+
+        //pays the Consignor.
         payConsignorButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
+                //this makes sure the user has selected a consignor that is owed money.
                 int row = consignorsOwedTable.getSelectedRow();
                 boolean isRowSelected = ivIsRowSelected(row);
                 if (!isRowSelected){
@@ -55,6 +63,7 @@ public class OwedToConsignorsGUI extends ConsignmentStoreViewer{
                     return;
                 }
 
+                //this checks to make sure that the user has entered an amount of money into the field.
                 String paymentString = paymentTextField.getText();
                 double payment = ivIsPriceDouble(paymentString);
                 if(payment == NOT_A_DOUBLE || paymentString.isEmpty()){
@@ -62,10 +71,13 @@ public class OwedToConsignorsGUI extends ConsignmentStoreViewer{
                     return;
                 }
 
+
                 double amountOwed = NOT_A_DOUBLE;
                 int column;
                 Object valueAt;
                 String valueString;
+
+                //this gets the amount that is owed from the column that is listed.
                 try {
                     column = (resultSet.findColumn("AMOUNT_OWED")-1);
                     valueAt = consignorsOwedTable.getValueAt(row, column);
@@ -75,14 +87,16 @@ public class OwedToConsignorsGUI extends ConsignmentStoreViewer{
                 catch (SQLException sqle){
                 }
 
+                //this check makes sure that the amount listed is not more than what is owed to the consignor.
                 if(payment > amountOwed || amountOwed == NOT_A_DOUBLE){
                     JOptionPane.showMessageDialog(owedToConsignorsGUIPanel, "You cannot pay more than owed.");
+                    return;
                 }
 
                 int consignorID = getID("consignor_id", row, consignorsOwedTable, resultSet);
                 Float paymentFloat = (float) payment;
-                System.out.println("ConsignorID: " + consignorID);
-                System.out.println("Payment: " + paymentFloat);
+
+                //attempts to update the consignors record to show how much they have been paid.
                 boolean updateTotal_PaidRecords = updateRecordsViewer("consignors", "total_paid", paymentFloat, "consignor_id", consignorID, storeController);
                 if (!updateTotal_PaidRecords){
                     JOptionPane.showMessageDialog(owedToConsignorsGUIPanel, "Could not update total_paid.");
@@ -92,11 +106,15 @@ public class OwedToConsignorsGUI extends ConsignmentStoreViewer{
                 Float owedReduction = (float) amountOwed - paymentFloat;
                 boolean updateAmount_OwedRecords = updateRecordsViewer("consignors", "amount_owed", owedReduction, "consignor_id", consignorID, storeController);
 
+                //attempts to update the record to deduct the amount paid from what is owed to the consignor.
                 if (!updateAmount_OwedRecords){
                     JOptionPane.showMessageDialog(owedToConsignorsGUIPanel, "Could not update total_paid.");
                     return;
                 }
 
+                JOptionPane.showMessageDialog(owedToConsignorsGUIPanel, "Consignor payment processed.");
+
+                //updates the table.
                 resultSet = consignorsOwedViewer(storeController);
                 stm = new StoreTableModel(storeController, resultSet);
                 consignorsOwedTable.setModel(stm);
@@ -104,6 +122,7 @@ public class OwedToConsignorsGUI extends ConsignmentStoreViewer{
             }
         });
 
+        //closes the window.
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -111,9 +130,5 @@ public class OwedToConsignorsGUI extends ConsignmentStoreViewer{
                 dispose();
             }
         });
-    }
-
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
     }
 }

@@ -15,12 +15,19 @@ import java.sql.ResultSet;
 //displays the record sold, who the consignor was, how much the consignor and the store made off the sale.
 public class SoldRecordsGUI extends ConsignmentStoreViewer{
 
-    private JTable soldRecordsTable;
-    private JButton exitButton;
     private JPanel soldRecordsPanel;
+
+    private JTable soldRecordsTable;
+
+    private JButton exitButton;
+
     private ResultSet resultSet;
+
     private ConsignmentStoreController storeController;
+
     private StoreTableModel stm;
+
+
     SoldRecordsGUI(ConsignmentStoreController csc){
         this.storeController = csc;
         setContentPane(soldRecordsPanel);

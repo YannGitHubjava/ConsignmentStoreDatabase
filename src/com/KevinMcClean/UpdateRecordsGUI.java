@@ -15,18 +15,22 @@ import java.sql.ResultSet;
 //this shows the records that need to be either returned to their consignor, but in the bargain basement, or given to charity.
 public class UpdateRecordsGUI extends ConsignmentStoreViewer{
 
+    private JPanel updateRecordsGUIPanel;
 
     private JTable monthOldTable;
-    //TODO this is a list of all the records that have been in the story for longer than a year, but still have their Charity boolean set to false
     private JTable yearOldRecordsTable;
+
     private JButton donatedToCharityButton;
     private JButton exitButton;
-    private JButton sentToBargainBasementButton;
-    private JPanel updateRecordsGUIPanel;
     private JButton returnedToOwnerButton;
+    private JButton sentToBargainBasementButton;
+
+
     private ResultSet rsMonthOld;
     private ResultSet rsYearOld;
+
     private StoreTableModel stm;
+
     private ConsignmentStoreController storeController;
 
     UpdateRecordsGUI(ConsignmentStoreController csc){
@@ -35,7 +39,7 @@ public class UpdateRecordsGUI extends ConsignmentStoreViewer{
         pack();
         setVisible(true);
 
-        //sets up the table displays.
+        //these 8 lines set up the table displays.
         rsMonthOld = displayMonthOldsRecordsViewer(storeController);
         stm = new StoreTableModel(storeController, rsMonthOld);
         monthOldTable.setModel(stm);
@@ -58,14 +62,20 @@ public class UpdateRecordsGUI extends ConsignmentStoreViewer{
         returnedToOwnerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
+                //makes sure that a record was chosen.
                 int row = monthOldTable.getSelectedRow();
                 if(row < 0) {
-                    JOptionPane.showMessageDialog(updateRecordsGUIPanel, "You must select a record to sell!");
+                    JOptionPane.showMessageDialog(updateRecordsGUIPanel, "Please choose a record!");
                     return;
                 }
+
+
                 int recordID = getID("RECORD_ID", row, monthOldTable, rsMonthOld);
+
+                //sends the order to the table to return the record to the owner and lets them know if it succeeded.
                 boolean returned = returnRecordToConsignorViewer(recordID, storeController);
-                    if(returned){
+                if(returned) {
                     JOptionPane.showMessageDialog(updateRecordsGUIPanel, "Record was returned to owner.");
                     return;
                 }
@@ -79,12 +89,17 @@ public class UpdateRecordsGUI extends ConsignmentStoreViewer{
         sentToBargainBasementButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
+                //makes sure that a record was chosen.
                 int row = monthOldTable.getSelectedRow();
                 if(row < 0) {
-                    JOptionPane.showMessageDialog(updateRecordsGUIPanel, "You must select a record to sell!");
+                    JOptionPane.showMessageDialog(updateRecordsGUIPanel, "You much choose a record.");
                     return;
                 }
+
                 int recordID = getID("RECORD_ID", row, monthOldTable, rsMonthOld);
+
+                //tells the database to put a record in the basement, then lets the user know if it succeeded.
                 boolean isInBasement = recordToBasementViewer(recordID, storeController);
                 if (isInBasement){
                     JOptionPane.showMessageDialog(updateRecordsGUIPanel, "This record was sent to the basementRecords table.");
@@ -92,21 +107,23 @@ public class UpdateRecordsGUI extends ConsignmentStoreViewer{
                 else{
                     JOptionPane.showMessageDialog(updateRecordsGUIPanel, "This record was not sent to the basementRecords table.");
                 }
-
-                //TODO allow the user to select specific records from the monthOldTable and puts them in the basementRecords table.
-                //TODO it then updates the table to show the new list.
             }
         });
         donatedToCharityButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
+                //makes sure that a record is chosen.
                 int row = yearOldRecordsTable.getSelectedRow();
                 if(row < 0) {
-                    JOptionPane.showMessageDialog(updateRecordsGUIPanel, "You must select a record to sell!");
+                    JOptionPane.showMessageDialog(updateRecordsGUIPanel, "You must choose a record.");
                     return;
                 }
 
                 int recordID = getID("RECORD_ID", row, yearOldRecordsTable, rsYearOld);
+
+                //tells the database to send the record to the charityRecords table and delete if from the basementRecords...
+                //...it then lets the user know if they succeeded.
                 boolean charity = recordToCharityViewer(recordID, storeController);
                 if(charity){
                     JOptionPane.showMessageDialog(updateRecordsGUIPanel, "Record given to charity.");
@@ -116,8 +133,6 @@ public class UpdateRecordsGUI extends ConsignmentStoreViewer{
                     JOptionPane.showMessageDialog(updateRecordsGUIPanel, "Record not given to charity.");
                     return;
                 }
-                //TODO allow the user to select specific records from the yearOldTable and puts them in the charity table.
-                //TODO it then updates the table to show the new list.
             }
         });
 

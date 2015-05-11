@@ -73,12 +73,24 @@ public class NewConsignorsGUI extends ConsignmentStoreViewer{
                     }
                 }
 
-                newConsignorViewer(firstNameText, lastNameText, address, city, state, phoneNumber, storeController);
+                boolean phoneCheck = ivCheckPhoneNo(phoneNumber);
+                if(!phoneCheck){
+                    JOptionPane.showMessageDialog(newConsignorsGUIPanel, "Please enter only integers for the phone number. No dashes, parentheses, or spaces. Please make sure the phone number is 10 digits.");
+                    return;
+                }
+
+                boolean isNew = newConsignorViewer(firstNameText, lastNameText, address, city, state, phoneNumber, storeController);
+                if(!isNew){
+                    JOptionPane.showMessageDialog(newConsignorsGUIPanel, "This consignor is already in the database.");
+                    return;
+                }
+
                 firstNameTextField.setText(null);
                 lastNameTextField.setText(null);
                 addressTextField.setText(null);
                 cityTextField.setText(null);
                 phoneNumberTextField.setText(null);
+
             }
         });
         //closes the GUI.
