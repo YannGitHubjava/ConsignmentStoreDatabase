@@ -3,6 +3,8 @@ package com.KevinMcClean;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.sql.ResultSet;
 
 /**
@@ -13,13 +15,14 @@ public class SearchGUI extends ConsignmentStoreViewer{
 
     private JButton quitButton;
     private JButton searchButton;
-    private JButton sellButton;
+    private JButton sellBasementButton;
 
     private JTable basementSearchTable;
     private JTable mainRoomSearchTable;
 
     private JTextField artistTextField;
     private JTextField titleTextField;
+    private JButton sellMainRoomButton;
 
     private ConsignmentStoreController storeController;
 
@@ -28,11 +31,26 @@ public class SearchGUI extends ConsignmentStoreViewer{
 
     private StoreTableModel stm;
 
-    SearchGUI(ConsignmentStoreController csc){
+    int recordID;
+
+    boolean recordSale;
+
+    SearchGUI(ConsignmentStoreController csc) {
         this.storeController = csc;
         setContentPane(searchGUIPanel);
         pack();
         setVisible(true);
+
+        //from http://stackoverflow.com/questions/4737495/disposing-and-closing-windows-in-java.
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                ConsignmentStoreViewerGUI.searchRecordsGUIOpen = false;
+                dispose();
+            }
+        });
+
+
 
         quitButton.addActionListener(new ActionListener() {
             @Override
@@ -48,29 +66,33 @@ public class SearchGUI extends ConsignmentStoreViewer{
                 String artist = artistTextField.getText();
                 String title = titleTextField.getText();
                 if (!artist.isEmpty() && !title.isEmpty()){
-                    rsBasementSearch = searchByArtistAndTitleForBasementViewer(artist, title, storeController);
+                    artist = "%" + artist + "%";
+                    title = "%" + title + "%";
+                    rsBasementSearch = searchByArtistAndTitle("basementRecords", artist, title, " WHERE artist LIKE ? AND title LIKE ? ORDER BY artist, title", storeController);
                     stm = new StoreTableModel(storeController, rsBasementSearch);
                     basementSearchTable.setModel(stm);
 
-                    rsMainRoomSearch = searchByArtistAndTitleForMainRoomViewer(artist, title, storeController);
+                    rsMainRoomSearch = searchByArtistAndTitle("mainRoomRecords", artist, title, " WHERE artist LIKE ? AND title LIKE ? ORDER BY artist, title", storeController);
                     stm = new StoreTableModel(storeController, rsMainRoomSearch);
                     mainRoomSearchTable.setModel(stm);
                 }
                 else if(artist.isEmpty() && !title.isEmpty()){
-                    rsBasementSearch = searchByTitleForBasementViewer(title, storeController);
+                    title = "%" + title + "%";
+                    rsBasementSearch = searchViewer("basementRecords", title, " WHERE title LIKE ? ORDER BY artist, title", storeController);
                     stm = new StoreTableModel(storeController, rsBasementSearch);
                     basementSearchTable.setModel(stm);
 
-                    rsMainRoomSearch = searchByTitleForMainRoomViewer(title, storeController);
+                    rsMainRoomSearch = searchViewer("mainRoomRecords", title, " WHERE title LIKE ? ORDER BY artist, title", storeController);
                     stm = new StoreTableModel(storeController, rsMainRoomSearch);
                     mainRoomSearchTable.setModel(stm);
                 }
                 else if (!artist.isEmpty() && title.isEmpty()) {
-                    rsBasementSearch = searchByArtistForBasementViewer(artist, storeController);
+                    artist = "%" + artist + "%";
+                    rsBasementSearch = searchViewer("basementRecords", artist, " WHERE artist LIKE ? ORDER BY artist, title", storeController);
                     stm = new StoreTableModel(storeController, rsBasementSearch);
                     basementSearchTable.setModel(stm);
 
-                    rsMainRoomSearch = searchByArtistForMainRoomViewer(artist, storeController);
+                    rsMainRoomSearch = searchViewer("mainRoomRecords", artist, " WHERE artist LIKE ? ORDER BY artist, title", storeController);
                     stm = new StoreTableModel(storeController, rsMainRoomSearch);
                     mainRoomSearchTable.setModel(stm);
                 }
@@ -81,10 +103,50 @@ public class SearchGUI extends ConsignmentStoreViewer{
             }
         });
 
-        sellButton.addActionListener(new ActionListener() {
+        sellBasementButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                int row = basementSearchTable.getSelectedRow();
+                if(row < 0) {
+                    JOptionPane.showMessageDialog(searchGUIPanel, "You must select a record to sell!");
+                    return;
+                }
+                recordID = getID("RECORD_ID", row, basementSearchTable, rsBasementSearch);
 
+                if (recordID == NOT_AN_INT) {
+                    JOptionPane.showMessageDialog(searchGUIPanel, "Could not sell this record. Please make sure you have selected an album.");
+                }
+                recordSale = recordBasementSaleViewer(recordID, storeController);
+                if (recordSale) {
+                    JOptionPane.showMessageDialog(searchGUIPanel, "Record sold.");
+                }
+                else {
+                    JOptionPane.showMessageDialog(searchGUIPanel, "Record not sold.");
+                }
+            }
+        });
+
+        sellMainRoomButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int row = mainRoomSearchTable.getSelectedRow();
+                if(row < 0) {
+                    JOptionPane.showMessageDialog(searchGUIPanel, "You must select a record to sell!");
+                    return;
+                }
+                recordID = getID("RECORD_ID", row, mainRoomSearchTable, rsMainRoomSearch);
+
+                if (recordID == NOT_AN_INT) {
+                    JOptionPane.showMessageDialog(searchGUIPanel, "Could not sell this record. Please make sure you have selected an album.");
+                    return;
+                }
+                recordSale = recordMainRoomSaleViewer(recordID, storeController);
+                if (recordSale) {
+                    JOptionPane.showMessageDialog(searchGUIPanel, "Record sold.");
+                }
+                else {
+                    JOptionPane.showMessageDialog(searchGUIPanel, "Record not sold.");
+                }
             }
         });
 

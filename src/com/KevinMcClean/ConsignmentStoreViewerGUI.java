@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
  * Created by Kevin on 4/21/2015.
@@ -22,7 +24,9 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
     private JButton soldRecordsButton;
     private JButton updateRecordsButton;
     private JButton salesButton;
-    private JButton seachButton;
+    private JButton searchButton;
+    private JButton newConsignorsButton;
+    private JButton owedToConsignorsButton;
 
 
     private ConsignmentStoreController storeController;
@@ -30,13 +34,15 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
     protected static boolean basementRecordsOpen = false;
     protected static boolean buyGUIOpen = false;
     protected static boolean charityGUIOpen = false;
-    protected static boolean cosignorsGUIOpen = false;
+    protected static boolean consignorsGUIOpen = false;
     protected static boolean mainRoomRecordsOpen = false;
+    protected static boolean newConsignorsGUIOpen = false;
     protected static boolean returnedRecordsGUIOpen = false;
     protected static boolean searchRecordsGUIOpen = false;
     protected static boolean soldRecordsGUIOpen = false;
     protected static boolean updateRecordsGUIOpen = false;
     protected static boolean salesGUIOpen = false;
+    protected static boolean consignorsOwedGUIOpen = false;
 
 
 
@@ -52,6 +58,15 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
         so that this screen can be a basic system where the user can choose which they wish to interact with.
          */
 
+        //from http://stackoverflow.com/questions/4737495/disposing-and-closing-windows-in-java.
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                cleanupViewer();
+                System.exit(0);
+            }
+        });
+
         buyButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -64,9 +79,29 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
         consignorsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(!cosignorsGUIOpen) {
-                    cosignorsGUIOpen = true;
+                if(!consignorsGUIOpen) {
+                    consignorsGUIOpen = true;
                     ConsignorsGUI consignorsGUI = new ConsignorsGUI(storeController);
+                }
+            }
+        });
+
+        newConsignorsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(!newConsignorsGUIOpen){
+                    newConsignorsGUIOpen = true;
+                    NewConsignorsGUI ncgui = new NewConsignorsGUI(storeController);
+                }
+            }
+        });
+
+        owedToConsignorsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(!consignorsOwedGUIOpen){
+                    consignorsOwedGUIOpen = true;
+                    OwedToConsignorsGUI ootcg = new OwedToConsignorsGUI(storeController);
                 }
             }
         });
@@ -124,10 +159,10 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
                 }
             }
         });
-        seachButton.addActionListener(new ActionListener() {
+        searchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(!searchRecordsGUIOpen){
+                if (!searchRecordsGUIOpen) {
                     searchRecordsGUIOpen = true;
                     SearchGUI sgui = new SearchGUI(storeController);
                 }

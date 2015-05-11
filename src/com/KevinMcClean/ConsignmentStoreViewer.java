@@ -15,8 +15,9 @@ import java.util.Date;
 public class ConsignmentStoreViewer extends JFrame{
     ConsignmentStoreController myController;
     private ResultSet resultSet;
-    protected final static Double NOT_A_DOUBLE = -10.00;
-    protected final static int NOT_AN_INT = -10;
+    protected final static Double NOT_A_DOUBLE = Double.MIN_VALUE;
+    protected final static int NOT_AN_INT = Integer.MIN_VALUE;
+    protected final static int SET_TO_SUBTRACTION = -1;
 
     ConsignmentStoreViewer(){
     }
@@ -36,20 +37,25 @@ public class ConsignmentStoreViewer extends JFrame{
         myController.requestCleanUp();
     }
 
+    public ResultSet consignorsOwedViewer(ConsignmentStoreController csc){
+        resultSet = csc.requestConsignorsOwed();
+        return resultSet;
+    }
+
     public ResultSet displayBasementRecordsViewer(ConsignmentStoreController csc){
-        resultSet = csc.requestTableDisplay("basementRecords");
+        resultSet = csc.requestTableDisplay("basementRecords", " ORDER BY artist, title");
         return resultSet;
     }
 
     //This has the ConsignmentStoreController request that the database display all the records in the charityRecords table.
     public ResultSet displayCharityRecordsViewer(ConsignmentStoreController csc){
-        resultSet = csc.requestTableDisplay("charityRecords");
+        resultSet = csc.requestTableDisplay("charityRecords", " ORDER BY artist, title");
         return resultSet;
     }
 
     //This has the ConsignmentStoreController request that the database add a record to the recordsInMainRoom table.
     public ResultSet displayConsignorsViewer(ConsignmentStoreController csc){
-        resultSet = csc.requestTableDisplay("consignors");
+        resultSet = csc.requestTableDisplay("consignors", " ORDER BY last_name, first_name");
         return resultSet;
     }
 
@@ -61,23 +67,23 @@ public class ConsignmentStoreViewer extends JFrame{
 
     //This has the ConsignmentStoreController request that the database display all the records in the recordsInMainRoom table.
     public ResultSet displayRecordsInMainRoomViewer(ConsignmentStoreController csc){
-        resultSet = csc.requestTableDisplay("mainRoomRecords");
+        resultSet = csc.requestTableDisplay("mainRoomRecords", " ORDER BY artist, title");
         return resultSet;
     }
 
     //This has the ConsignmentStoreController request that the database display all the records in the soldRecords table.
     public ResultSet displaySoldRecordsViewer(ConsignmentStoreController csc){
-        resultSet = csc.requestTableDisplay("soldRecords");
+        resultSet = csc.requestTableDisplay("soldRecords", " ORDER BY artist, title");
         return resultSet;
     }
 
     public ResultSet displaySalesViewer(ConsignmentStoreController csc){
-        resultSet = csc.requestTableDisplay("sales");
+        resultSet = csc.requestTableDisplay("sales", "");
         return resultSet;
     }
 
     public ResultSet displayReturnedRecordsViewer(ConsignmentStoreController csc){
-        resultSet = csc.requestTableDisplay("returnedRecords");
+        resultSet = csc.requestTableDisplay("returnedRecords", " ORDER BY artist, title");
         return resultSet;
     }
 
@@ -124,34 +130,23 @@ public class ConsignmentStoreViewer extends JFrame{
         boolean recordToBasement = csc.requestRecordToBasement(recordID);
         return recordToBasement;
     }
-    public ResultSet searchByArtistForBasementViewer(String artist, ConsignmentStoreController csc){
-        resultSet = csc.requestSearchByArtist("basementRecords", artist);
+    public ResultSet searchViewer(String table, String artist, String queryString,ConsignmentStoreController csc){
+        resultSet = csc.requestSearch(table, artist, queryString);
         return resultSet;
     }
 
-    public ResultSet searchByArtistForMainRoomViewer(String artist, ConsignmentStoreController csc){
-        resultSet = csc.requestSearchByArtist("mainRoomRecords", artist);
+    public ResultSet searchByArtistForMainRoomViewer(String artist, String queryString, ConsignmentStoreController csc){
+        resultSet = csc.requestSearch("mainRoomRecords", artist, queryString);
         return resultSet;
     }
 
-    public ResultSet searchByArtistAndTitleForBasementViewer(String artist, String title, ConsignmentStoreController csc){
-        resultSet = csc.requestSearchByArtistAndTitle("basementRecords", artist, title);
+    public ResultSet searchByArtistAndTitle(String table, String artist, String title, String queryString, ConsignmentStoreController csc){
+        resultSet = csc.requestSearchByArtistAndTitle(table, artist, title, queryString);
         return resultSet;
     }
 
-    public ResultSet searchByArtistAndTitleForMainRoomViewer(String artist, String title, ConsignmentStoreController csc){
-        resultSet = csc.requestSearchByArtistAndTitle("mainRoomRecords", artist, title);
-        return resultSet;
-    }
-
-    public ResultSet searchByTitleForBasementViewer(String title, ConsignmentStoreController csc){
-        resultSet = csc.requestSearchByTitle("basementRecords", title);
-        return resultSet;
-    }
-
-    public ResultSet searchByTitleForMainRoomViewer(String title, ConsignmentStoreController csc){
-        resultSet = csc.requestSearchByTitle("mainRoomRecords", title);
-        return resultSet;
+    public boolean updateRecordsViewer(String table, String updatedField, Float amount, String searchField, int consignorID, ConsignmentStoreController csc){
+        return csc.requestUpdateRecords(table, updatedField, amount, searchField, consignorID);
     }
 
     public String ivCheckNameForThe(String name){
@@ -191,6 +186,16 @@ public class ConsignmentStoreViewer extends JFrame{
         }
         return priceDouble;
     }
+
+    public boolean ivIsRowSelected(int row){
+        if(row >= 0){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
 
     public int getID(String columnName, int row, JTable table, ResultSet rs){
         int id = NOT_AN_INT;

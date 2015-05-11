@@ -64,6 +64,7 @@ public class CreateDatabase {
             addCharityRecordsTestData();
             addReturnedRecordsTestData();
             addSoldRecordsTestData();
+            addSalesRecordsTestData();
         } catch (Exception sqle) {
 
             System.err.println("Unable to add test data to database. Error message and stack trace follow");
@@ -76,7 +77,7 @@ public class CreateDatabase {
 
 //creates the table that holds the list of consignors.
     private void createConsignorTable() throws SQLException {
-        String createConsignorsTableSQL = "CREATE TABLE consignors (consignor_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY, first_name VARCHAR(25), last_name VARCHAR(25), address VARCHAR(50), city VARCHAR(50), state VARCHAR(2), phone_number VARCHAR(20), total_paid FLOAT)";
+        String createConsignorsTableSQL = "CREATE TABLE consignors (consignor_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY, first_name VARCHAR(25), last_name VARCHAR(25), address VARCHAR(50), city VARCHAR(50), state VARCHAR(2), phone_number VARCHAR(20), amount_owed FLOAT, total_paid FLOAT)";
         String deleteTableSQL = "DROP TABLE consignors";
 
         try {
@@ -157,7 +158,7 @@ public class CreateDatabase {
         }
     }
 
-//this tracks the records that have been sold.
+    //this tracks the records that have been sold.
     private void createRecordsSoldTable() throws SQLException {
         String createRecordsTableSQL = "CREATE TABLE soldRecords (record_id INT, consignor_id INT, sales_id INT, artist VARCHAR(50), title VARCHAR(50), price FLOAT, consignment_date DATE, date_sold DATE )";
         String deleteTableSQL = "DROP TABLE soldRecords";
@@ -185,7 +186,7 @@ public class CreateDatabase {
         }
     }
 
-//this is where the records that have been given to charity are tracked.
+    //this is where the records that have been given to charity are tracked.
     private void createRecordsSentToCharityTable() throws SQLException {
         String createRecordsTableSQL = "CREATE TABLE charityRecords (record_id INT, consignor_id INT, artist VARCHAR(50), title VARCHAR(50), price FLOAT, consignment_date DATE, charity_date DATE )";
         String deleteTableSQL = "DROP TABLE charityRecords";
@@ -382,12 +383,10 @@ public class CreateDatabase {
             //This isn't going to work
             throw new Exception("Statement not initialized");
         }
-        //"CREATE TABLE recordsInStore (recordID INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY, consignorID INT, artist VARCHAR(50), title VARCHAR(50), price FLOAT, consignmentDate DATE)";
         try {
-
-            String addRecord1 = "INSERT INTO soldRecords (consignor_iD, artist, title, price, consignment_date, sales_date) VALUES (4, 'Shivaree', 'Who''s Got Trouble?', 7.00, '2010-08-24', '2010-09-25')";
+            String addRecord1 = "INSERT INTO sales (record_id, consignor_id, sale_date, price, total_to_Store, total_to_consignor) VALUES (99, 5, '2010-09-25', 7.00, 4.20, 2.80)";
             statement.executeUpdate(addRecord1);
-            String addRecord2 = "INSERT INTO soldRecords (consignor_iD, artist, title, price, consignment_date, sales_date) VALUES (1, 'Al Green', 'Greatest Hits', 9.99, '2014-03-20', '2014-04-24')";
+            String addRecord2 = "INSERT INTO sales (record_id, consignor_id, sale_date, price, total_to_Store, total_to_consignor) VALUES (98, 2, '2014-04-24', 9.99, 5.99, 4.00)";
             statement.executeUpdate(addRecord2);
 
         } catch (SQLException sqle) {
@@ -452,15 +451,15 @@ public class CreateDatabase {
             throw new Exception("Statement not initialized");
         }
         try {
-            String addRecord1 = "INSERT INTO consignors (first_name, last_name, address, city, state, phone_number, total_paid) VALUES ('Jen', 'Bigelow', '123 Maple St.', 'Minneapolis', 'MN', '6121234567', 0.0)";
+            String addRecord1 = "INSERT INTO consignors (first_name, last_name, address, city, state, phone_number, amount_owed, total_paid) VALUES ('Jen', 'Bigelow', '123 Maple St.', 'Minneapolis', 'MN', '6121234567', 0.0, 0.0)";
             statement.executeUpdate(addRecord1);
-            String addRecord2 = "INSERT INTO consignors (first_name, last_name, address, city, state, phone_number, total_paid) VALUES ('Ben', 'Laurie', '456 Adams St.', 'Minneapolis', 'MN', '6121111111', 9.99)";
+            String addRecord2 = "INSERT INTO consignors (first_name, last_name, address, city, state, phone_number, amount_owed, total_paid) VALUES ('Ben', 'Laurie', '456 Adams St.', 'Minneapolis', 'MN', '6121111111', 4.00, 0.00)";
             statement.executeUpdate(addRecord2);
-            String addRecord3 = "INSERT INTO consignors (first_name, last_name, address, city, state, phone_number, total_paid) VALUES ('Rob', 'Brantseg', '789 Place St.', 'St. Paul', 'MN', '6519876543', 0.0)";
+            String addRecord3 = "INSERT INTO consignors (first_name, last_name, address, city, state, phone_number, amount_owed, total_paid) VALUES ('Rob', 'Brantseg', '789 Place St.', 'St. Paul', 'MN', '6519876543', 0.0, 0.0)";
             statement.executeUpdate(addRecord3);
-            String addRecord4 = "INSERT INTO consignors (first_name, last_name, address, city, state, phone_number, total_paid) VALUES ('Alex', 'Davy', '000 Nonexistent Dr.', 'Edina', 'MN', '612000000', 0.0)";
+            String addRecord4 = "INSERT INTO consignors (first_name, last_name, address, city, state, phone_number, amount_owed, total_paid) VALUES ('Alex', 'Davy', '000 Nonexistent Dr.', 'Edina', 'MN', '612000000', 0.0, 0.0)";
             statement.executeUpdate(addRecord4);
-            String addRecord5 = "INSERT INTO consignors (first_name, last_name, address, city, state, phone_number, total_paid) VALUES ('Lisa', 'Bloomberg', '123 Maple St.', 'Eau Claire', 'WI', '9529529520', 7.00)";
+            String addRecord5 = "INSERT INTO consignors (first_name, last_name, address, city, state, phone_number, amount_owed, total_paid) VALUES ('Lisa', 'Bloomberg', '123 Maple St.', 'Eau Claire', 'WI', '9529529520', 0.0, 2.80)";
             statement.executeUpdate(addRecord5);
         } catch (SQLException sqle) {
             System.err.println("Unable to add test data, check validity of SQL statements?");

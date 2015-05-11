@@ -3,6 +3,8 @@ package com.KevinMcClean;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.sql.ResultSet;
 
 /**
@@ -30,18 +32,30 @@ public class ConsignorsGUI extends ConsignmentStoreViewer{
         stm = new StoreTableModel(storeController, resultSet);
         consignorsTable.setModel(stm);
 
+
+        //from http://stackoverflow.com/questions/4737495/disposing-and-closing-windows-in-java.
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                ConsignmentStoreViewerGUI.consignorsGUIOpen= false;
+                dispose();
+            }
+        });
         //Goes to the newConsignorsGUI GUI.
         newConsignorsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                NewConsignorsGUI newConsignorsGUI = new NewConsignorsGUI(storeController);
+                if (!ConsignmentStoreViewerGUI.newConsignorsGUIOpen) {
+                    ConsignmentStoreViewerGUI.newConsignorsGUIOpen = true;
+                    NewConsignorsGUI newConsignorsGUI = new NewConsignorsGUI(storeController);
+                }
             }
         });
         //closes the screen.
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ConsignmentStoreViewerGUI.cosignorsGUIOpen = false;
+                ConsignmentStoreViewerGUI.consignorsGUIOpen = false;
                 dispose();
             }
         });

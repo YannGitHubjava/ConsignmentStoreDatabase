@@ -24,9 +24,14 @@ public class ConsignmentStoreController {
         model.cleanup();
     }
 
+    public ResultSet requestConsignorsOwed(){
+        resultSet = model.searchForConsignorOwed();
+        return resultSet;
+    }
+
     //request that the database return a list of the records in the bargain basement.
-    public ResultSet requestTableDisplay(String tableName){
-        resultSet = model.tableDisplay(tableName);
+    public ResultSet requestTableDisplay(String tableName, String queryString){
+        resultSet = model.tableDisplay(tableName, queryString);
         return resultSet;
     }
 
@@ -71,13 +76,13 @@ public class ConsignmentStoreController {
         return recordToBasement;
     }
 
-    public ResultSet requestSearchByArtist(String table, String artist){
-        resultSet = model.searchByArtist(table, artist);
+    public ResultSet requestSearch(String table, String artist, String queryString){
+        resultSet = model.search(table, artist, queryString);
         return resultSet;
     }
 
-    public ResultSet requestSearchByArtistAndTitle(String table, String artist, String title){
-        resultSet = model.searchByArtistAndTitle(table, artist, title);
+    public ResultSet requestSearchByArtistAndTitle(String table, String artist, String title, String queryString){
+        resultSet = model.searchByArtistAndTitle(table, artist, title, queryString);
         return resultSet;
     }
 
@@ -86,4 +91,7 @@ public class ConsignmentStoreController {
         return resultSet;
     }
 
+    public boolean requestUpdateRecords(String table, String updatedField, Float amount, String searchField, int consignorID){
+        return model.updateRecords(table, updatedField, amount, searchField, consignorID);
+    }
 }

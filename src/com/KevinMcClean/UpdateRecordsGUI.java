@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.sql.ResultSet;
 
 /**
@@ -44,11 +46,24 @@ public class UpdateRecordsGUI extends ConsignmentStoreViewer{
         yearOldRecordsTable.setModel(stm);
         yearOldRecordsTable.setGridColor(Color.BLACK);
 
+        //from http://stackoverflow.com/questions/4737495/disposing-and-closing-windows-in-java.
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                ConsignmentStoreViewerGUI.updateRecordsGUIOpen = false;
+                dispose();
+            }
+        });
+
         returnedToOwnerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //TODO this action boolean should take the recordID of the highlighted record and use it as the id to process.
-                int recordID = getID("RECORD_ID", monthOldTable.getSelectedRow(), monthOldTable, rsMonthOld);
+                int row = monthOldTable.getSelectedRow();
+                if(row < 0) {
+                    JOptionPane.showMessageDialog(updateRecordsGUIPanel, "You must select a record to sell!");
+                    return;
+                }
+                int recordID = getID("RECORD_ID", row, monthOldTable, rsMonthOld);
                 boolean returned = returnRecordToConsignorViewer(recordID, storeController);
                     if(returned){
                     JOptionPane.showMessageDialog(updateRecordsGUIPanel, "Record was returned to owner.");
@@ -64,10 +79,17 @@ public class UpdateRecordsGUI extends ConsignmentStoreViewer{
         sentToBargainBasementButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //int row = monthOldTable.getSelectedRow();
-                int recordID = getID("RECORD_ID", monthOldTable.getSelectedRow(), monthOldTable, rsMonthOld);
+                int row = monthOldTable.getSelectedRow();
+                if(row < 0) {
+                    JOptionPane.showMessageDialog(updateRecordsGUIPanel, "You must select a record to sell!");
+                    return;
+                }
+                int recordID = getID("RECORD_ID", row, monthOldTable, rsMonthOld);
                 boolean isInBasement = recordToBasementViewer(recordID, storeController);
-                if (!isInBasement){
+                if (isInBasement){
+                    JOptionPane.showMessageDialog(updateRecordsGUIPanel, "This record was sent to the basementRecords table.");
+                }
+                else{
                     JOptionPane.showMessageDialog(updateRecordsGUIPanel, "This record was not sent to the basementRecords table.");
                 }
 
@@ -78,7 +100,13 @@ public class UpdateRecordsGUI extends ConsignmentStoreViewer{
         donatedToCharityButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int recordID = getID("RECORD_ID", yearOldRecordsTable.getSelectedRow(), yearOldRecordsTable, rsYearOld);
+                int row = yearOldRecordsTable.getSelectedRow();
+                if(row < 0) {
+                    JOptionPane.showMessageDialog(updateRecordsGUIPanel, "You must select a record to sell!");
+                    return;
+                }
+
+                int recordID = getID("RECORD_ID", row, yearOldRecordsTable, rsYearOld);
                 boolean charity = recordToCharityViewer(recordID, storeController);
                 if(charity){
                     JOptionPane.showMessageDialog(updateRecordsGUIPanel, "Record given to charity.");

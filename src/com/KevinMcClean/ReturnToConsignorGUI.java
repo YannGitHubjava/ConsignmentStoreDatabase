@@ -5,6 +5,8 @@ import javax.xml.transform.Result;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.sql.ResultSet;
 
 /**
@@ -29,6 +31,15 @@ public class ReturnToConsignorGUI extends ConsignmentStoreViewer{
         stm = new StoreTableModel(storeController, resultSet);
         returnedRecordsTable.setModel(stm);
         returnedRecordsTable.setGridColor(Color.black);
+
+        //from http://stackoverflow.com/questions/4737495/disposing-and-closing-windows-in-java.
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                ConsignmentStoreViewerGUI.returnedRecordsGUIOpen = false;
+                dispose();
+            }
+        });
 
         exitButton.addActionListener(new ActionListener() {
             @Override

@@ -35,6 +35,7 @@ public class ConsignmentStoreModel {
     ResultSet rsDisplayConsignors = null;
     ResultSet rsDisplayMainRoomRecords = null;
     ResultSet rsTableDisplay = null;
+    ResultSet rsConsignorsOwed = null;
 
     LinkedList<Statement> allStatements = new LinkedList<Statement>();
 
@@ -46,6 +47,7 @@ public class ConsignmentStoreModel {
     PreparedStatement psDisplayMainRoomRecords;
     PreparedStatement psGetSaleID;
     PreparedStatement psMonthOldRecords;
+    PreparedStatement psMoveRecord;
     PreparedStatement psNewConsignor;
     PreparedStatement psConsignorPayments;
     PreparedStatement psRecordToBasement;
@@ -150,15 +152,9 @@ public class ConsignmentStoreModel {
     }
 
     //this has the database send back data on the records that are in the basementRecords table, which is used for a display in the GUI.
-    public ResultSet tableDisplay(String table){
+    public ResultSet tableDisplay(String table, String queryString){
         try {
-            String tableDisplayString = "SELECT * FROM " + table;
-            if (table.contains("Records")){
-                tableDisplayString = tableDisplayString + " ORDER BY artist, title";
-            }
-            else if(table.contains("consignors")){
-                tableDisplayString = tableDisplayString + " ORDER BY last_name, first_name";
-            }
+            String tableDisplayString = "SELECT * FROM " + table + queryString;
             System.out.println("Table string: " + tableDisplayString);
             rsTableDisplay = statement.executeQuery(tableDisplayString);
         }
@@ -172,10 +168,9 @@ public class ConsignmentStoreModel {
     }
 
     //this has the database send back data on the records that are in the basementRecords table, which is used for a display in the GUI.
-    public ResultSet searchByArtist(String table, String artist){
+    public ResultSet search(String table, String artist, String queryString){
         try {
-            artist = "%" + artist + "%";
-            String tableDisplayString = "SELECT * FROM " + table + " WHERE artist LIKE ? ORDER BY artist, title";
+            String tableDisplayString = "SELECT * FROM " + table + queryString;
             psSearchArtist = conn.prepareStatement(tableDisplayString, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
             psSearchArtist.setString(1, artist);
             rsTableDisplay = psSearchArtist.executeQuery();
@@ -184,17 +179,30 @@ public class ConsignmentStoreModel {
             System.out.println("Could not fetch the data from " + table + " table.");
             System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
             sqle.printStackTrace();
-            return rsTableDisplay;
         }
         return rsTableDisplay;
     }
 
+    public ResultSet searchForConsignorOwed(){
+
+        try{
+            String consignorsOwedSQLString = "SELECT consignor_id, first_name, last_name, phone_number, amount_owed FROM consignors WHERE amount_owed > 0";
+            rsConsignorsOwed = statement.executeQuery(consignorsOwedSQLString);
+        }
+        catch(SQLException sqle){
+            System.out.println("Could not fetch the data from consignors table.");
+            System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
+            sqle.printStackTrace();
+        }
+        return rsConsignorsOwed;
+    }
+
     //this has the database send back data on the records that are in the basementRecords table, which is used for a display in the GUI.
-    public ResultSet searchByArtistAndTitle(String table, String artist, String title){
+    public ResultSet searchByArtistAndTitle(String table, String artist, String title, String queryString){
         try {
             artist = "%" + artist + "%";
             title = "%" + title + "%";
-            String tableDisplayString = "SELECT * FROM " + table + " WHERE artist LIKE ? AND title LIKE ? ORDER BY artist, title";
+            String tableDisplayString = "SELECT * FROM " + table + queryString;
             psSearchArtist = conn.prepareStatement(tableDisplayString, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
             psSearchArtist.setString(1, artist);
             psSearchArtist.setString(2, title);
@@ -212,8 +220,7 @@ public class ConsignmentStoreModel {
     //this has the database send back data on the records that are in the basementRecords table, which is used for a display in the GUI.
     public ResultSet searchByTitle(String table, String title){
         try {
-            title = "%" + title + "%";
-            String tableDisplayString = "SELECT * FROM " + table + " WHERE title LIKE ? ORDER BY artist, title";
+            String tableDisplayString = "SELECT * FROM " + table;
             psSearchArtist = conn.prepareStatement(tableDisplayString, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
             psSearchArtist.setString(1, title);
             rsTableDisplay = psSearchArtist.executeQuery();
@@ -269,7 +276,7 @@ public class ConsignmentStoreModel {
 
     public Float getConsignorPayments(int id){
         String consignorPaymentsString = "SELECT total_paid FROM consignors WHERE consignor_id = ?";
-        Float totalPaidToDate = null;
+        Float totalPaidToDate = 0f;
         try {
             psConsignorPayments = conn.prepareStatement(consignorPaymentsString);
             psConsignorPayments.setInt(1, id);
@@ -417,6 +424,11 @@ public class ConsignmentStoreModel {
                 price = rs.getFloat("price");
                 totalToConsignor = (price * Float.parseFloat(".4"));
                 totalToStore = (price-totalToConsignor);
+                System.out.println("Total to consignor: " + totalToConsignor);
+                artist = rs.getString("artist");
+                title = rs.getString("title");
+                java.sql.Date consignmentDate = rs.getDate("consignment_date");
+
 
                 psSellRecord = conn.prepareStatement(addSale);
                 allStatements.add(psSellRecord);
@@ -428,6 +440,28 @@ public class ConsignmentStoreModel {
                 psSellRecord.setFloat(6, totalToConsignor);
                 psSellRecord.execute();
                 System.out.println("Added to sales table.");
+
+                psGetSaleID = conn.prepareCall(getSalesID);
+                allStatements.add(psMoveRecord);
+                psGetSaleID.setInt(1, recordID);
+                ResultSet rs2 = psGetSaleID.executeQuery();
+                System.out.println(rs2.toString());
+                int salesID = -1;
+                while(rs2.next()){
+                    salesID = rs2.getInt("sales_id");
+                }
+
+                psMoveRecord = conn.prepareStatement(addSoldRecord);
+                allStatements.add(psMoveRecord);
+                psMoveRecord.setInt(1, recordID);
+                psMoveRecord.setInt(2, consignorID);
+                psMoveRecord.setInt(3, salesID);
+                psMoveRecord.setString(4, artist);
+                psMoveRecord.setString(5, title);
+                psMoveRecord.setFloat(6, price);
+                psMoveRecord.setDate(7, consignmentDate);
+                psMoveRecord.setDate(8, saleDate);
+                psMoveRecord.execute();
             }
         }
         catch(SQLException sqle){
@@ -437,56 +471,29 @@ public class ConsignmentStoreModel {
             return false;
         }
 
-        //this try block adds the sold record to the soldRecords table.
-        rs = selectRecord(table, recordID);
-        try {
-            while(rs.next()) {
-                consignorID = rs.getInt("consignor_id");
-                artist = rs.getString("artist");
-                title = rs.getString("title");
-                price = rs.getFloat("price");
-                java.sql.Date consignmentDate = rs.getDate("consignment_date");
 
-                psGetSaleID = conn.prepareCall(getSalesID);
-                allStatements.add(psReturnRecord);
-                psGetSaleID.setInt(1, recordID);
-                ResultSet rs2 = psGetSaleID.executeQuery();
-                System.out.println(rs2.toString());
-                int salesID = -1;
-                while(rs2.next()){
-                    salesID = rs2.getInt("sales_id");
-                }
 
-                psReturnRecord = conn.prepareStatement(addSoldRecord);
-                allStatements.add(psReturnRecord);
-                psReturnRecord.setInt(1, recordID);
-                psReturnRecord.setInt(2, consignorID);
-                psReturnRecord.setInt(3, salesID);
-                psReturnRecord.setString(4, artist);
-                psReturnRecord.setString(5, title);
-                psReturnRecord.setFloat(6, price);
-                psReturnRecord.setDate(7, consignmentDate);
-                psReturnRecord.setDate(8, saleDate);
-                psReturnRecord.execute();
-                System.out.println("Record added to soldRecords database.");
-            }
-        }
-        catch(SQLException sqle){
-            System.out.println("Could not add to soldRecord database.");
-            System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
-            sqle.printStackTrace();
-            return false;
-        }
+
         //
-        updateRecords("consignors", "total_paid", totalToConsignor, "consignor_id", consignorID);
+        boolean update = updateRecords("consignors", "amount_owed", totalToConsignor, "consignor_id", consignorID);
+        if (update){
+            System.out.println("Consignor has been paid.");
+        }
+        else{
+            System.out.println("Consignor has not been paid.");
+        }
 
         //this method deletes the record from the table.
         boolean delete = deleteRecordFromTable(table, recordID);
-        if (!delete){
+
+        if (delete){
+            System.out.println("Record deleted from " + table + " table.");
+            return true;
+        }
+        else{
             System.out.println("Record not deleted from " + table + " table.");
             return false;
         }
-        return true;
     }
 
     //moves a record from the basementRecords table to the charityRecords table.
@@ -614,21 +621,36 @@ public class ConsignmentStoreModel {
         return true;
     }
 
-    public void updateRecords(String table, String updatedField, Float amount, String searchField, int id){
+    public boolean updateRecords(String table, String updatedField, Float amount, String searchField, int id){
         String updateString = "UPDATE " + table + " SET " + updatedField + " = ? WHERE " + searchField + " = ?";
-        Float totalPaymentsToDate = getConsignorPayments(id);
-        amount = amount + totalPaymentsToDate;
+
+        if(updatedField.equals("total_paid")) {
+            Float totalPaymentsToDate = getConsignorPayments(id);
+            amount = amount + totalPaymentsToDate;
+        }
+
+        System.out.println("Table: " + table);
+        System.out.println("Updated Field: " + updatedField);
+        System.out.println("Amount: " + amount);
+        System.out.println("Search Field: " + searchField);
+        System.out.println("id: " + id);
+        System.out.println(updateString);
+        System.out.println("Amount: " + amount);
+
         try{
             psUpdateTable = conn.prepareStatement(updateString);
             allStatements.add(psUpdateTable);
             psUpdateTable.setFloat(1, amount);
             psUpdateTable.setInt(2, id);
+            psUpdateTable.execute();
         }
         catch(SQLException sqle){
             System.out.println("Could not update " + table + " table.");
             System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
             sqle.printStackTrace();
+            return false;
         }
+        return true;
     }
 
 }

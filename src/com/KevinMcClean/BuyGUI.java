@@ -3,6 +3,8 @@ package com.KevinMcClean;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -17,9 +19,13 @@ public class BuyGUI extends ConsignmentStoreViewer{
     private JTextField albumTitleTextField;
     private JButton exitButton;
     private JButton purchaseButton;
+
     private int consignorID;
+
     private ResultSet resultSet;
+
     private StoreTableModel stm;
+
     private ConsignmentStoreController storeController;
 
     //this is where the user can buy records from the consignor.
@@ -34,6 +40,14 @@ public class BuyGUI extends ConsignmentStoreViewer{
         stm = new StoreTableModel(myController, resultSet);
         consignorsTable.setModel(stm);
 
+        //from http://stackoverflow.com/questions/4737495/disposing-and-closing-windows-in-java.
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                ConsignmentStoreViewerGUI.buyGUIOpen = false;
+                dispose();
+            }
+        });
 
         //the purchase Button is used to buy records once the fields have been filled out.
         purchaseButton.addActionListener(new ActionListener() {
@@ -44,23 +58,13 @@ public class BuyGUI extends ConsignmentStoreViewer{
                 String albumTitle = albumTitleTextField.getText();
                 if (!artistText.isEmpty()&& !priceText.isEmpty() && !albumTitle.isEmpty()){
                     int row = consignorsTable.getSelectedRow();
-                    int column = -1;
-                    Object valueAt;
-                    String valueString;
-                    try {
-                        column = (resultSet.findColumn("CONSIGNOR_ID")-1);
-                        valueAt = consignorsTable.getValueAt(row, column);
-                        valueString = valueAt.toString();
-                        consignorID = Integer.parseInt(valueString);
-                    }
-                    catch (SQLException sqle){
-                        JOptionPane.showMessageDialog(buyGUIPanel, "Could not fine the \"Consignor Id\" column.");
-                        return;
-                    }
-                    catch (NumberFormatException nfe){
+                    boolean isRowSelected = ivIsRowSelected(row);
+                    if(!isRowSelected){
                         JOptionPane.showMessageDialog(buyGUIPanel, "Please select a consignor.");
                         return;
                     }
+                    consignorID = getID("CONSIGNOR_ID", row, consignorsTable, resultSet);
+                    System.out.println("ConsignorID: " +consignorID);
 
                     artistText = ivCheckNameForThe(artistText);
                     albumTitle = ivCheckNameForThe(albumTitle);

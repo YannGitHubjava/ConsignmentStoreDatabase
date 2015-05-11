@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.math.BigDecimal;
 import java.util.InputMismatchException;
 
@@ -21,13 +23,35 @@ public class NewConsignorsGUI extends ConsignmentStoreViewer{
     private JTextField lastNameTextField;
     private JTextField cityTextField;
     private JTextField stateTextField;
+    private JComboBox stateComboBox;
     private ConsignmentStoreController storeController;
+    private String[] states = {"AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "KS", "IA", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "OH", "ND", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"};
+
 
     NewConsignorsGUI(ConsignmentStoreController csc){
         this.storeController = csc;
         setContentPane(newConsignorsGUIPanel);
         pack();
         setVisible(true);
+        int count = 0;
+
+        for(String state: states){
+            stateComboBox.addItem(state);
+            count++;
+        }
+
+        System.out.println("State count: " + count);
+
+
+        //from http://stackoverflow.com/questions/4737495/disposing-and-closing-windows-in-java.
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                ConsignmentStoreViewerGUI.newConsignorsGUIOpen = false;
+                dispose();
+            }
+        });
+
         addNewConsignorButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -35,30 +59,33 @@ public class NewConsignorsGUI extends ConsignmentStoreViewer{
                 String lastNameText = lastNameTextField.getText();
                 String address = addressTextField.getText();
                 String city = cityTextField.getText();
-                String state = stateTextField.getText();
+                Object objectState = stateComboBox.getSelectedItem();
+                String state = objectState.toString();
                 String phoneNumber = phoneNumberTextField.getText();
-                //checks to make sure that all the fields have been filled in.
-                if (!firstNameText.isEmpty() && !lastNameText.isEmpty() && !address.isEmpty() && !city.isEmpty() && !state.isEmpty() && !phoneNumber.isEmpty() ){
-                    newConsignorViewer(firstNameText, lastNameText, address, city, state, phoneNumber, storeController);
 
+                String[] fields = {firstNameText, lastNameText, address, city, phoneNumber};
 
-                    firstNameTextField.setText(null);
-                    lastNameTextField.setText(null);
-                    addressTextField.setText(null);
-                    cityTextField.setText(null);
-                    stateTextField.setText(null);
-                    phoneNumberTextField.setText(null);
-
+                for (String field : fields) {
+                    if (field.isEmpty()) {
+                        JOptionPane.showMessageDialog(newConsignorsGUIPanel, "Please check " + field + " and make sure it is filled in.");
+                        return;
+                    }
                 }
-                else{
-                    JOptionPane.showMessageDialog(newConsignorsGUIPanel, "You must fill out all the fields to add a consignor.");
-                }
+
+                newConsignorViewer(firstNameText, lastNameText, address, city, state, phoneNumber, storeController);
+                firstNameTextField.setText(null);
+                lastNameTextField.setText(null);
+                addressTextField.setText(null);
+                cityTextField.setText(null);
+                stateTextField.setText(null);
+                phoneNumberTextField.setText(null);
             }
         });
         //closes the GUI.
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                ConsignmentStoreViewerGUI.newConsignorsGUIOpen = false;
                 dispose();
             }
         });
