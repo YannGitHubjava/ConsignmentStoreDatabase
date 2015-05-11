@@ -62,7 +62,18 @@ public class StoreTableModel extends AbstractTableModel{
     @Override
     public String getColumnName(int column) {
         try {
-            return resultSet.getMetaData().getColumnName(column + 1);
+            String columnResult = resultSet.getMetaData().getColumnName(column + 1);
+            String[] columnNameArray = columnResult.split("_");
+            String columnName = "";
+            for(String word: columnNameArray){
+               columnName = columnName + " " + word;
+            }
+
+            columnName.trim();
+            return columnName;
+            //old way.
+            //return resultSet.getMetaData().getColumnName(column + 1);
+
         }
         catch(SQLException sqle){
             System.out.println("Could not fetch column " + column + 1);
@@ -79,11 +90,6 @@ public class StoreTableModel extends AbstractTableModel{
     @Override
     public int getColumnCount() {
         return columnCount;
-    }
-
-    public String getColumnName(){
-        String columnName = null;
-        return columnName;
     }
 
     @Override

@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
@@ -376,7 +377,7 @@ public class ConsignmentStoreModel {
 
     //this has the database send back data on the consignors, which is used for a display in the GUI.
     public void newConsignor(String firstName, String lastName, String address, String city, String state, String phoneNo) {
-        String newConsignor = "INSERT INTO consignors (first_name, last_name, address, city, state, phone_number, total_paid) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String newConsignor = "INSERT INTO consignors (first_name, last_name, address, city, state, phone_number, amount_owed, total_paid) VALUES (?, ?, ?, ?, ?, ?, 0, 0)" ;
         try {
             psNewConsignor = conn.prepareStatement(newConsignor);
             allStatements.add(psNewConsignor);
@@ -386,7 +387,6 @@ public class ConsignmentStoreModel {
             psNewConsignor.setString(4, city);
             psNewConsignor.setString(5, state);
             psNewConsignor.setString(6, phoneNo);
-            psNewConsignor.setFloat(7, 0);
             psNewConsignor.execute();
         } catch (SQLException sqle) {
             System.err.println("Error adding new consignor.");
@@ -422,7 +422,10 @@ public class ConsignmentStoreModel {
             while(rs.next()) {
                 consignorID = rs.getInt("consignor_id");
                 price = rs.getFloat("price");
-                totalToConsignor = (price * Float.parseFloat(".4"));
+                totalToConsignor = (price *.4f);
+                //String totalToConsignorString = totalToConsignor.toString();
+                //totalToConsignorString.format("%0.2g%n", totalToConsignorString);
+                //Float consignorPay = Float.parseFloat(totalToConsignorString);
                 totalToStore = (price-totalToConsignor);
                 System.out.println("Total to consignor: " + totalToConsignor);
                 artist = rs.getString("artist");
