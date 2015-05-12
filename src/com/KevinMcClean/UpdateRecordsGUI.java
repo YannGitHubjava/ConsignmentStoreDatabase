@@ -140,7 +140,7 @@ public class UpdateRecordsGUI extends ConsignmentStoreViewer{
                 boolean charity = recordToCharityViewer(recordID, storeController);
                 if(charity){
                     JOptionPane.showMessageDialog(updateRecordsGUIPanel, "Record given to charity.");
-                    //resets the table
+                    //resets the table.
                     rsYearOld = displayYearOldRecordsViewer(storeController);
                     stm = new StoreTableModel(storeController, rsYearOld);
                     yearOldRecordsTable.setModel(stm);
