@@ -14,16 +14,23 @@ import java.util.InputMismatchException;
  */
 //this GUI opens when someone needs to add a new consignor to the database.
 public class NewConsignorsGUI extends ConsignmentStoreViewer{
+
+
     private JTextField firstNameTextField;
     private JTextField phoneNumberTextField;
     private JTextField addressTextField;
-    private JButton addNewConsignorButton;
-    private JButton exitButton;
-    private JPanel newConsignorsGUIPanel;
     private JTextField lastNameTextField;
     private JTextField cityTextField;
+
+    private JButton addNewConsignorButton;
+    private JButton exitButton;
+
+    private JPanel newConsignorsGUIPanel;
+
     private JComboBox stateComboBox;
+
     private ConsignmentStoreController storeController;
+
     private String[] states = {"AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "KS", "IA", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "OH", "ND", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"};
 
 
@@ -51,6 +58,7 @@ public class NewConsignorsGUI extends ConsignmentStoreViewer{
             }
         });
 
+        //adds a new consignor to the database.
         addNewConsignorButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -62,8 +70,6 @@ public class NewConsignorsGUI extends ConsignmentStoreViewer{
                 String state = objectState.toString();
                 String phoneNumber = phoneNumberTextField.getText();
 
-                System.out.println(state);
-
                 String[] fields = {firstNameText, lastNameText, address, city, phoneNumber};
 
                 for (String field : fields) {
@@ -73,12 +79,14 @@ public class NewConsignorsGUI extends ConsignmentStoreViewer{
                     }
                 }
 
+                //checks to make sure the phone number is an integter.
                 boolean phoneCheck = ivCheckPhoneNo(phoneNumber);
                 if(!phoneCheck){
                     JOptionPane.showMessageDialog(newConsignorsGUIPanel, "Please enter only integers for the phone number. No dashes, parentheses, or spaces. Please make sure the phone number is 10 digits.");
                     return;
                 }
 
+                //checks to see if the consignor is already in the database.
                 boolean isNew = newConsignorViewer(firstNameText, lastNameText, address, city, state, phoneNumber, storeController);
                 if(!isNew){
                     JOptionPane.showMessageDialog(newConsignorsGUIPanel, "This consignor is already in the database.");

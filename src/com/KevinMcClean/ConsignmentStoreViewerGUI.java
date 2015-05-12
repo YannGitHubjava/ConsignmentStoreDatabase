@@ -67,6 +67,7 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
             }
         });
 
+        //opens up the buyGUI.
         buyButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -76,6 +77,8 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
                 }
             }
         });
+
+        //opens up the consignorGUI.
         consignorsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -86,6 +89,7 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
             }
         });
 
+        //opens up the newConsignorGUI.
         newConsignorsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -96,6 +100,7 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
             }
         });
 
+        //opens up the owedToConsignorsGUI.
         owedToConsignorsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -105,6 +110,7 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
                 }
             }
         });
+
         //Closes the program.
         quitButton.addActionListener(new ActionListener() {
             @Override
@@ -113,6 +119,8 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
                 System.exit(0);
             }
         });
+
+        //opens up the charityRecordsGUI.
         recordsGivenToCharityButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -122,6 +130,8 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
                 }
             }
         });
+
+        //opens up the BasementRecordsGUI.
         recordsInBasementButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -131,6 +141,8 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
                 }
             }
         });
+
+        //opens up the RecordsInMainRoomGUI.
         recordsInStoreButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -140,6 +152,8 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
                 }
             }
         });
+
+        //opens up the recordsReturnedGUI.
         recordsReturnedToConsignorButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -150,6 +164,7 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
             }
         });
 
+        //opens up the salesGUI.
         salesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -159,6 +174,8 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
                 }
             }
         });
+
+        //opens up the searchGUI.
         searchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -169,6 +186,7 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
             }
         });
 
+        //opens up the SoldRecordsGUI.
         soldRecordsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -179,6 +197,7 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
             }
         });
 
+        //opens up the UpdateRecordsGUI.
         updateRecordsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -188,7 +207,5 @@ public class ConsignmentStoreViewerGUI extends ConsignmentStoreViewer{
                 }
             }
         });
-
-
     }
 }

@@ -12,12 +12,18 @@ import java.sql.ResultSet;
  */
 //this shows all the consignors that have placed stuff in the store.
 public class ConsignorsGUI extends ConsignmentStoreViewer{
+
     private JTable consignorsTable;
+
     private JButton newConsignorsButton;
     private JButton exitButton;
+
     private JPanel consignorsGUIPanel;
+
     private ResultSet resultSet;
+
     private StoreTableModel stm;
+
     private ConsignmentStoreController storeController;
 
 

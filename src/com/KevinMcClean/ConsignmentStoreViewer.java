@@ -28,8 +28,8 @@ public class ConsignmentStoreViewer extends JFrame{
     }
 
     //This has the ConsignmentStoreController request that the database add a record to the recordsInMainRoom table.
-    public void buyRecordsViewer(String artist, String title, Double price, int consignorID, ConsignmentStoreController csc){
-        csc.requestBuyRecords(artist, title, price, consignorID);
+    public boolean buyRecordsViewer(String artist, String title, Double price, int consignorID, ConsignmentStoreController csc){
+        return csc.requestBuyRecords(artist, title, price, consignorID);
     }
 
     //This has the ConsignmentStoreController request that the database shut down any open connections.
@@ -37,15 +37,18 @@ public class ConsignmentStoreViewer extends JFrame{
         myController.requestCleanUp();
     }
 
+    //this pulls up the consignors who are still owed money.
     public ResultSet consignorsOwedViewer(ConsignmentStoreController csc){
         resultSet = csc.requestConsignorsOwed();
         return resultSet;
     }
 
+    //this searches the count of how many copies of an album are already in the store.
     public boolean countSearchViewer(String artist, String title, ConsignmentStoreController csc){
         return csc.requestCountSearch(artist, title);
     }
 
+    //this displays the records from the basementRecords table.
     public ResultSet displayBasementRecordsViewer(ConsignmentStoreController csc){
         resultSet = csc.requestTableDisplay("basementRecords", " ORDER BY artist, title");
         return resultSet;
@@ -81,11 +84,13 @@ public class ConsignmentStoreViewer extends JFrame{
         return resultSet;
     }
 
+    //this displays the sales from the store.
     public ResultSet displaySalesViewer(ConsignmentStoreController csc){
         resultSet = csc.requestTableDisplay("sales", "");
         return resultSet;
     }
 
+    //this displays the returnedRecords table.
     public ResultSet displayReturnedRecordsViewer(ConsignmentStoreController csc){
         resultSet = csc.requestTableDisplay("returnedRecords", " ORDER BY artist, title");
         return resultSet;
@@ -109,6 +114,7 @@ public class ConsignmentStoreViewer extends JFrame{
         return recordSale;
     }
 
+    //this allows a sale from the recordsBasement.
     public boolean recordBasementSaleViewer(int recordID, ConsignmentStoreController csc){
         boolean recordSale = csc.requestRecordSale(recordID,"basementRecords");
         return recordSale;
@@ -139,20 +145,19 @@ public class ConsignmentStoreViewer extends JFrame{
         return resultSet;
     }
 
-    public ResultSet searchByArtistForMainRoomViewer(String artist, String queryString, ConsignmentStoreController csc){
-        resultSet = csc.requestSearch("mainRoomRecords", artist, queryString);
-        return resultSet;
-    }
 
+    //this searches by artist and title.
     public ResultSet searchByArtistAndTitle(String table, String artist, String title, String queryString, ConsignmentStoreController csc){
         resultSet = csc.requestSearchByArtistAndTitle(table, artist, title, queryString);
         return resultSet;
     }
 
+    //this updates the records of the chosen table.
     public boolean updateRecordsViewer(String table, String updatedField, Float amount, String searchField, int consignorID, ConsignmentStoreController csc){
         return csc.requestUpdateRecords(table, updatedField, amount, searchField, consignorID);
     }
 
+    //this removes "The " from the beginning of names of alphabetization purposes (ex. "The Rolling Stones" becomes "Rolling Stones, The".
     public String ivCheckNameForThe(String name){
 
         if (name.startsWith("The ")){
@@ -169,9 +174,11 @@ public class ConsignmentStoreViewer extends JFrame{
         }
     }
 
+    //this checks to make sure that the phone number provided is entirely integers and 10 digits long.
     public boolean ivCheckPhoneNo(String phoneNo){
         try {
-            Integer phoneNoInt = Integer.parseInt(phoneNo);
+            Long.parseLong(phoneNo);
+            System.out.println("Phone Number length: " + phoneNo.length());
             if(phoneNo.length() != 10){
                 return false;
             }
@@ -182,6 +189,7 @@ public class ConsignmentStoreViewer extends JFrame{
         return true;
     }
 
+    //this checks to make sure the price is double.
     public Double ivIsPriceDouble(String price){
         Double priceDouble;
         try{
@@ -194,6 +202,7 @@ public class ConsignmentStoreViewer extends JFrame{
         return priceDouble;
     }
 
+    //this checks to make sure a row is selected.
     public boolean ivIsRowSelected(int row){
         if(row >= 0){
             return true;
@@ -203,7 +212,7 @@ public class ConsignmentStoreViewer extends JFrame{
         }
     }
 
-
+    //this gets the id (i.e. "record_id" or "consignor_id"), which is useful for finding a specific record.
     public int getID(String columnName, int row, JTable table, ResultSet rs){
         int id = NOT_AN_INT;
         int column;

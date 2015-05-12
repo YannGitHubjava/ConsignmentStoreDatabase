@@ -77,12 +77,18 @@ public class UpdateRecordsGUI extends ConsignmentStoreViewer{
                 boolean returned = returnRecordToConsignorViewer(recordID, storeController);
                 if(returned) {
                     JOptionPane.showMessageDialog(updateRecordsGUIPanel, "Record was returned to owner.");
+
+                    //resets the table
+                    rsMonthOld = displayMonthOldsRecordsViewer(storeController);
+                    stm = new StoreTableModel(storeController, rsMonthOld);
+                    monthOldTable.setModel(stm);
                     return;
                 }
                 else{
                     JOptionPane.showMessageDialog(updateRecordsGUIPanel, "Record was not returned to owner.");
                     return;
                 }
+
             }
         });
 
@@ -103,9 +109,16 @@ public class UpdateRecordsGUI extends ConsignmentStoreViewer{
                 boolean isInBasement = recordToBasementViewer(recordID, storeController);
                 if (isInBasement){
                     JOptionPane.showMessageDialog(updateRecordsGUIPanel, "This record was sent to the basementRecords table.");
+
+                    //resets the table
+                    rsMonthOld = displayMonthOldsRecordsViewer(storeController);
+                    stm = new StoreTableModel(storeController, rsMonthOld);
+                    monthOldTable.setModel(stm);
+                    return;
                 }
                 else{
                     JOptionPane.showMessageDialog(updateRecordsGUIPanel, "This record was not sent to the basementRecords table.");
+                    return;
                 }
             }
         });
@@ -127,6 +140,10 @@ public class UpdateRecordsGUI extends ConsignmentStoreViewer{
                 boolean charity = recordToCharityViewer(recordID, storeController);
                 if(charity){
                     JOptionPane.showMessageDialog(updateRecordsGUIPanel, "Record given to charity.");
+                    //resets the table
+                    rsYearOld = displayYearOldRecordsViewer(storeController);
+                    stm = new StoreTableModel(storeController, rsYearOld);
+                    yearOldRecordsTable.setModel(stm);
                     return;
                 }
                 else{

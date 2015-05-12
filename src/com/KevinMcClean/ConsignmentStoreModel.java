@@ -1,5 +1,4 @@
 package com.KevinMcClean;
-import com.sun.org.apache.xpath.internal.SourceTree;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -7,9 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.LinkedList;
 
 
@@ -30,24 +27,23 @@ public class ConsignmentStoreModel {
 
     Connection conn = null;
 
-    ResultSet rs = null;
-    ResultSet rsDisplayBasementRecords = null;
-    ResultSet rsDisplayCharityRecords = null;
+    ResultSet rsConisgnorPayments = null;
+    ResultSet rsMoveRecordToCharity = null;
+    ResultSet rsMoveRecordToBasement = null;
     ResultSet rsDisplayConsignors = null;
-    ResultSet rsDisplayMainRoomRecords = null;
     ResultSet rsTableDisplay = null;
     ResultSet rsConsignorsOwed = null;
     ResultSet rsCheckConsignors = null;
     ResultSet rsCountSearch = null;
+    ResultSet rsRecordSale = null;
+    ResultSet rsReturnedRecords = null;
+    ResultSet rsSelectRecord = null;
 
     LinkedList<Statement> allStatements = new LinkedList<Statement>();
+    LinkedList<ResultSet> allSets = new LinkedList<ResultSet>();
 
     PreparedStatement psAddRecord;
     PreparedStatement psDeleteRecord;
-    PreparedStatement psDisplayBasementRecords;
-    PreparedStatement psDisplayCharityRecords;
-    PreparedStatement psDisplayConsignors;
-    PreparedStatement psDisplayMainRoomRecords;
     PreparedStatement psGetSaleID;
     PreparedStatement psMonthOldRecords;
     PreparedStatement psMoveRecord;
@@ -56,15 +52,11 @@ public class ConsignmentStoreModel {
     PreparedStatement psRecordToBasement;
     PreparedStatement psReturnRecord;
     PreparedStatement psSearchArtist;
-    PreparedStatement psSearchArtistAndTitle;
-    PreparedStatement psSearchTitle;
     PreparedStatement psSelectRecord;
     PreparedStatement psSellRecord;
     PreparedStatement psUpdateTable;
     PreparedStatement psYearOldRecords;
     PreparedStatement psCountSearch;
-
-
 
     private static final int YEAR = 0;
     private static final int MONTH = 1;
@@ -79,7 +71,7 @@ public class ConsignmentStoreModel {
     }
 
     //this adds a record to the mainRoomRecords table.
-    public void buyRecord(int consignorID, String artist, String title, double price){
+    public boolean buyRecord(int consignorID, String artist, String title, double price){
         String addRecord = "INSERT INTO mainRoomRecords (consignor_id, artist, title, price, consignment_date) VALUES (?, ?, ?, ?, ?)";
         try {
 
@@ -93,25 +85,24 @@ public class ConsignmentStoreModel {
             psAddRecord.setDouble(4, price);
             psAddRecord.setDate(5, consignmentDate);
             psAddRecord.execute();
+            return true;
         }
         catch (SQLException sqle) {
             System.err.println("Error adding record.");
-            //TODO delete these two lines (they give out too much information).
             System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
             sqle.printStackTrace();
+            return false;
         }
-
-        //if we get here, everything should have worked...
-        //Return the list of laptops, which will be empty if there is no data in the database
     }
 
     //closes down the connection to the database.
     public void cleanup() {
-        // TODO Auto-generated method stub
         try {
-            if (rs != null) {
-                rs.close();  //Close result set
-                System.out.println("ResultSet closed");
+            for(ResultSet rs: allSets) {
+                if (rs != null) {
+                    rs.close();  //Close result set
+                    System.out.println("ResultSet closed");
+                }
             }
         } catch (SQLException se) {
             se.printStackTrace();
@@ -159,7 +150,7 @@ public class ConsignmentStoreModel {
     public ResultSet tableDisplay(String table, String queryString){
         try {
             String tableDisplayString = "SELECT * FROM " + table + queryString;
-            System.out.println("Table string: " + tableDisplayString);
+            allSets.add(rsTableDisplay);
             rsTableDisplay = statement.executeQuery(tableDisplayString);
         }
         catch(SQLException sqle){
@@ -174,12 +165,17 @@ public class ConsignmentStoreModel {
     //this has the database send back data on the records that are in the basementRecords table, which is used for a display in the GUI.
     public ResultSet search(String table, String artist, String queryString){
         try {
+
             String tableDisplayString = "SELECT * FROM " + table + queryString;
+
+            allStatements.add(psSearchArtist);
             psSearchArtist = conn.prepareStatement(tableDisplayString, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
             psSearchArtist.setString(1, artist);
+            allSets.add(rsTableDisplay);
             rsTableDisplay = psSearchArtist.executeQuery();
         }
         catch(SQLException sqle){
+
             System.out.println("Could not fetch the data from " + table + " table.");
             System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
             sqle.printStackTrace();
@@ -187,30 +183,35 @@ public class ConsignmentStoreModel {
         return rsTableDisplay;
     }
 
+    //this fetches the number of rows for both the mainRoomRecords and the basementRecords.
     public boolean countSearch(String artist, String title){
-        String countSearchSQLStringMainRoom = "SELECT COUNT(*) AS RowCount FROM mainRoomRecords WHERE artist LIKE ? AND title LIKE ? ";// +
-        String countSearchSQLStringBasement = "SELECT COUNT(*) AS RowCount FROM basementRecords WHERE artist LIKE ? AND title LIKE ?";
+
+        String[] tableArray = {"mainRoomRecords", "basementRecords"};
+
+        int rows = 0;
+
         try {
-            psCountSearch = conn.prepareStatement(countSearchSQLStringMainRoom);
-            psCountSearch.setString(1, artist);
-            psCountSearch.setString(2, title);
+            //this runs through both tables and gets the number of copies of the record for each table.
+            for(String table: tableArray) {
+                String countSearchSQLString = "SELECT COUNT(*) AS RowCount FROM " + table + " WHERE artist LIKE ? AND title LIKE ? ";
 
-            rsCountSearch = psCountSearch.executeQuery();
-            int mainRoomRows = 0;
-            while (rsCountSearch.next()) {
-                mainRoomRows = rsCountSearch.getInt("RowCount");
-            }
-            psCountSearch = conn.prepareStatement(countSearchSQLStringBasement);
-            psCountSearch.setString(1, artist);
-            psCountSearch.setString(2, title);
+                allStatements.add(psCountSearch);
+                psCountSearch = conn.prepareStatement(countSearchSQLString);
+                psCountSearch.setString(1, artist);
+                psCountSearch.setString(2, title);
 
-            rsCountSearch = psCountSearch.executeQuery();
-            int basementRows = 0;
-            while (rsCountSearch.next()) {
-                basementRows = rsCountSearch.getInt("RowCount");
+                allSets.add(rsCountSearch);
+
+                allSets.add(rsCountSearch);
+                rsCountSearch = psCountSearch.executeQuery();
+
+                while (rsCountSearch.next()) {
+                    rows = rows + rsCountSearch.getInt("RowCount");
+                }
             }
-            System.out.println("Rows: " + (basementRows + mainRoomRows));
-            if(basementRows + mainRoomRows <= 5){
+
+            //checks to make sure there are 5 or less copies.
+            if(rows <= 5){
                 return true;
             }
             else{
@@ -218,17 +219,19 @@ public class ConsignmentStoreModel {
             }
         }
         catch(SQLException sqle){
-            System.out.println("Could not fetch the data from RowCount Union.");
+            System.out.println("Could not fetch the number of copies in the store.");
             System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
             sqle.printStackTrace();
             return false;
         }
     }
 
+    //this gets the consignors that are owed money.
     public ResultSet searchForConsignorOwed(){
 
         try{
             String consignorsOwedSQLString = "SELECT consignor_id, first_name, last_name, phone_number, amount_owed FROM consignors WHERE amount_owed > 0";
+            allSets.add(rsConsignorsOwed);
             rsConsignorsOwed = statement.executeQuery(consignorsOwedSQLString);
         }
         catch(SQLException sqle){
@@ -242,29 +245,15 @@ public class ConsignmentStoreModel {
     //this has the database send back data on the records that are in the basementRecords table, which is used for a display in the GUI.
     public ResultSet searchByArtistAndTitle(String table, String artist, String title, String queryString){
         try {
-            artist = "%" + artist + "%";
-            title = "%" + title + "%";
+
             String tableDisplayString = "SELECT * FROM " + table + queryString;
+
+            allStatements.add(psSearchArtist);
             psSearchArtist = conn.prepareStatement(tableDisplayString, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
             psSearchArtist.setString(1, artist);
             psSearchArtist.setString(2, title);
-            rsTableDisplay = psSearchArtist.executeQuery();
-        }
-        catch(SQLException sqle){
-            System.out.println("Could not fetch the data from " + table + " table.");
-            System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
-            sqle.printStackTrace();
-            return rsTableDisplay;
-        }
-        return rsTableDisplay;
-    }
 
-    //this has the database send back data on the records that are in the basementRecords table, which is used for a display in the GUI.
-    public ResultSet searchByTitle(String table, String title){
-        try {
-            String tableDisplayString = "SELECT * FROM " + table;
-            psSearchArtist = conn.prepareStatement(tableDisplayString, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-            psSearchArtist.setString(1, title);
+            allSets.add(rsTableDisplay);
             rsTableDisplay = psSearchArtist.executeQuery();
         }
         catch(SQLException sqle){
@@ -281,14 +270,16 @@ public class ConsignmentStoreModel {
         try {
             java.sql.Date monthOldDate = getMonthOldDate();
             String monthOldRecords = "SELECT mainRoomRecords.*, consignors.first_name, consignors.last_name, consignors.phone_number FROM mainRoomRecords JOIN consignors ON mainRoomRecords.consignor_id = consignors.consignor_id WHERE consignment_date <= ?";
+
             allStatements.add(psMonthOldRecords);
             psMonthOldRecords = conn.prepareStatement(monthOldRecords, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
             psMonthOldRecords.setDate(1, monthOldDate);
+
+            allSets.add(rsDisplayConsignors);
             rsDisplayConsignors = psMonthOldRecords.executeQuery();
         }
         catch(SQLException sqle){
             System.out.println("Could not fetch the month old Records from the mainRoomRecords table.");
-            //TODO remove these two before turning in.
             System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
             sqle.printStackTrace();
             return rsDisplayConsignors;
@@ -301,14 +292,16 @@ public class ConsignmentStoreModel {
         try {
             java.sql.Date yearOldDate = getYearOldDate();
             String yearOldRecords = "SELECT * FROM basementRecords WHERE consignment_date <= ?";
+
             allStatements.add(psYearOldRecords);
             psYearOldRecords = conn.prepareStatement(yearOldRecords, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
             psYearOldRecords.setDate(1, yearOldDate);
+
+            allSets.add(rsDisplayConsignors);
             rsDisplayConsignors = psYearOldRecords.executeQuery();
         }
         catch(SQLException sqle){
             System.out.println("Could not fetch the consignors");
-            //TODO remove these two before turning in.
             System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
             sqle.printStackTrace();
             return rsDisplayConsignors;
@@ -316,20 +309,24 @@ public class ConsignmentStoreModel {
         return rsDisplayConsignors;
     }
 
+    //this gets the total that has been paid out to a given consignor.
     public Float getConsignorPayments(int id){
         String consignorPaymentsString = "SELECT total_paid FROM consignors WHERE consignor_id = ?";
         Float totalPaidToDate = 0f;
         try {
+            allStatements.add(psConsignorPayments);
             psConsignorPayments = conn.prepareStatement(consignorPaymentsString);
             psConsignorPayments.setInt(1, id);
-            rs = psConsignorPayments.executeQuery();
-            while(rs.next()){
-                totalPaidToDate = rs.getFloat("total_paid");
+
+            allSets.add(rsConisgnorPayments);
+            rsConisgnorPayments = psConsignorPayments.executeQuery();
+
+            while(rsConisgnorPayments.next()){
+                totalPaidToDate = rsConisgnorPayments.getFloat("total_paid");
             }
         }
         catch(SQLException sqle){
             System.out.println("Could not fetch the total_paid field");
-            //TODO remove these two before turning in.
             System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
             sqle.printStackTrace();
             return null;
@@ -341,12 +338,16 @@ public class ConsignmentStoreModel {
     public java.sql.Date getDate(){
         java.util.Date date = new java.util.Date();
         SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd");
+
         String dateString = sdf.format(date).toString();
         String splitDate[] = dateString.split("-");
+
         Integer intYear = Integer.parseInt(splitDate[YEAR]);
         Integer intMonth = Integer.parseInt(splitDate[MONTH]);
         Integer intDate = Integer.parseInt(splitDate[DATE]);
+
         java.sql.Date todaysDate = new java.sql.Date(intYear-1900, intMonth-1, intDate);
+
         return todaysDate;
     }
 
@@ -354,12 +355,16 @@ public class ConsignmentStoreModel {
     public java.sql.Date getMonthOldDate(){
         java.util.Date date = new java.util.Date();
         SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd");
+
         String dateString = sdf.format(date).toString();
         String splitDate[] = dateString.split("-");
+
         Integer intYear = Integer.parseInt(splitDate[YEAR]);
         Integer intMonth = Integer.parseInt(splitDate[MONTH]);
         Integer intDate = Integer.parseInt(splitDate[DATE]);
+
         java.sql.Date todaysDate = new java.sql.Date(intYear-1900, intMonth-2, intDate);
+
         return todaysDate;
     }
 
@@ -367,41 +372,44 @@ public class ConsignmentStoreModel {
     public java.sql.Date getYearOldDate(){
         java.util.Date date = new java.util.Date();
         SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd");
+
         String dateString = sdf.format(date).toString();
         String splitDate[] = dateString.split("-");
+
         Integer intYear = Integer.parseInt(splitDate[YEAR]);
-        intYear--;
         Integer intMonth = Integer.parseInt(splitDate[MONTH]);
         Integer intDate = Integer.parseInt(splitDate[DATE]);
+
         java.sql.Date todaysDate = new java.sql.Date(intYear-1901, intMonth-1, intDate);
         return todaysDate;
     }
 
     //this method selects the record by recordID and the table that is chosen.
     public ResultSet selectRecord(String table, Integer recordID) {
-        System.out.println("RecordID: " + recordID);
+
         String selectRecord = "SELECT * FROM " + table + " WHERE record_id = ?";
-        ResultSet selectRecordRS;
+
         try {
-            System.out.println(recordID);
             psSelectRecord = conn.prepareStatement(selectRecord);
             allStatements.add(psSelectRecord);
             psSelectRecord.setInt(1, recordID);
-            selectRecordRS = psSelectRecord.executeQuery();
+
+            allSets.add(rsSelectRecord);
+            rsSelectRecord = psSelectRecord.executeQuery();
         } catch (SQLException sqle) {
             System.err.println("Error: Couldn't find record.");
-            //TODO delete these two lines (they give out too much information).
             System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
             sqle.printStackTrace();
             return null;
         }
-        return selectRecordRS;
+        return rsSelectRecord;
     }
 
     //this deletes the chosen record from the chosen table.
     public boolean deleteRecordFromTable(String table, int recordID) {
         String deleteRecordSales = "DELETE FROM " + table + " WHERE record_id = ?";
         try {
+            allStatements.add(psDeleteRecord);
             psDeleteRecord = conn.prepareStatement(deleteRecordSales);
             allStatements.add(psDeleteRecord);
             psDeleteRecord.setInt(1, recordID);
@@ -420,9 +428,8 @@ public class ConsignmentStoreModel {
     public boolean newConsignor(String firstName, String lastName, String address, String city, String state, String phoneNo) {
         String newConsignor = "INSERT INTO consignors (first_name, last_name, address, city, state, phone_number, amount_owed, total_paid) VALUES (?, ?, ?, ?, ?, ?, 0, 0)" ;
 
+        allSets.add(rsCheckConsignors);
         rsCheckConsignors = tableDisplay("consignors", "");
-
-
 
         try {
             while(rsCheckConsignors.next()){
@@ -434,12 +441,11 @@ public class ConsignmentStoreModel {
                 String checkPhone = rsCheckConsignors.getString("phone_number");
 
                 if(checkFirst.equalsIgnoreCase(firstName) && checkLast.equalsIgnoreCase(lastName) &&
-                        checkAddress.equalsIgnoreCase(address) && checkCity.equalsIgnoreCase(city) && checkState.equalsIgnoreCase(checkState) &&
-                        checkPhone.equalsIgnoreCase(phoneNo)){
+                        checkAddress.equalsIgnoreCase(address) && checkCity.equalsIgnoreCase(city) &&
+                        checkState.equalsIgnoreCase(checkState) && checkPhone.equalsIgnoreCase(phoneNo)){
                     return false;
                 }
             }
-
 
             psNewConsignor = conn.prepareStatement(newConsignor);
             allStatements.add(psNewConsignor);
@@ -452,7 +458,6 @@ public class ConsignmentStoreModel {
             psNewConsignor.execute();
         } catch (SQLException sqle) {
             System.err.println("Error adding new consignor.");
-            //TODO delete these two lines (they give out too much information).
             System.out.println(sqle.getErrorCode() + " " + sqle.getMessage());
             sqle.printStackTrace();
             return false;
@@ -462,7 +467,6 @@ public class ConsignmentStoreModel {
     }
 
     //this lists makes a new sale listing and moves the record into the soldRecords table. It also deletes the table from whichever table it is in.
-    //TODO make it so that the program knows which table contains the record. Should be a string that comes into this method.
     public boolean recordSales(int recordID, String table) {
 
         int consignorID = 0;
@@ -478,23 +482,25 @@ public class ConsignmentStoreModel {
         String getSalesID = "SELECT sales_id FROM sales WHERE record_id = ?";
 
         //this method selects the record that is going to be sold.
-        rs = selectRecord(table, recordID);
+        allSets.add(rsRecordSale);
+        rsRecordSale = selectRecord(table, recordID);
         java.sql.Date saleDate = getDate();
-        //this try block puts a sale on the sales list.
+
+        //this try block puts a sale on the sales table, and once that is successful adds the sold record to the soldRecords table.
         try {
-            while(rs.next()) {
-                consignorID = rs.getInt("consignor_id");
-                price = rs.getFloat("price");
+            while(rsRecordSale.next()) {
+                consignorID = rsRecordSale.getInt("consignor_id");
+                price = rsRecordSale.getFloat("price");
                 totalToConsignor = (price *.4f);
                 String totalToConsignorString = String.format("%.02f", totalToConsignor);
                 Float roundedTotalToConsignor = Float.parseFloat(totalToConsignorString);
                 totalToStore = (price-roundedTotalToConsignor);
                 System.out.println("Total to consignor: " + roundedTotalToConsignor);
-                artist = rs.getString("artist");
-                title = rs.getString("title");
-                java.sql.Date consignmentDate = rs.getDate("consignment_date");
+                artist = rsRecordSale.getString("artist");
+                title = rsRecordSale.getString("title");
+                java.sql.Date consignmentDate = rsRecordSale.getDate("consignment_date");
 
-
+                //adds to the sales table.
                 psSellRecord = conn.prepareStatement(addSale);
                 allStatements.add(psSellRecord);
                 psSellRecord.setInt(1, recordID);
@@ -506,16 +512,20 @@ public class ConsignmentStoreModel {
                 psSellRecord.execute();
                 System.out.println("Added to sales table.");
 
+
+                //this gets the salesID, which is needed for the soldRecords table.
                 psGetSaleID = conn.prepareCall(getSalesID);
-                allStatements.add(psMoveRecord);
+                allStatements.add(psGetSaleID);
                 psGetSaleID.setInt(1, recordID);
                 ResultSet rs2 = psGetSaleID.executeQuery();
-                System.out.println(rs2.toString());
-                int salesID = -1;
+
+
+                int salesID = Integer.MIN_VALUE;
                 while(rs2.next()){
                     salesID = rs2.getInt("sales_id");
                 }
 
+                //adds the record to the soldRecords list.
                 psMoveRecord = conn.prepareStatement(addSoldRecord);
                 allStatements.add(psMoveRecord);
                 psMoveRecord.setInt(1, recordID);
@@ -536,10 +546,7 @@ public class ConsignmentStoreModel {
             return false;
         }
 
-
-
-
-        //
+        //updates the consignors table with what the store owes the consignor.
         boolean update = updateRecords("consignors", "amount_owed", totalToConsignor, "consignor_id", consignorID);
         if (update){
             System.out.println("Consignor has been paid.");
@@ -550,7 +557,6 @@ public class ConsignmentStoreModel {
 
         //this method deletes the record from the table.
         boolean delete = deleteRecordFromTable(table, recordID);
-
         if (delete){
             System.out.println("Record deleted from " + table + " table.");
             return true;
@@ -566,17 +572,18 @@ public class ConsignmentStoreModel {
         String returnRecordString = "INSERT INTO returnedRecords (record_id, consignor_id, artist, title, price, consignment_date, returned_date) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         //this block selects the record that is being returned.
-        rs = selectRecord("mainRoomRecords", recordID);
+        allSets.add(rsReturnedRecords);
+        rsReturnedRecords = selectRecord("mainRoomRecords", recordID);
 
 
         //this try block puts the record in the returnedRecords table.
         try {
-            while(rs.next()) {
-                int consignorID = rs.getInt("consignor_id");
-                String artist = rs.getString("artist");
-                String title = rs.getString("title");
-                Float price = rs.getFloat("price");
-                java.sql.Date consignmentDate = rs.getDate("consignment_date");
+            while(rsReturnedRecords.next()) {
+                int consignorID = rsReturnedRecords.getInt("consignor_id");
+                String artist = rsReturnedRecords.getString("artist");
+                String title = rsReturnedRecords.getString("title");
+                Float price = rsReturnedRecords.getFloat("price");
+                java.sql.Date consignmentDate = rsReturnedRecords.getDate("consignment_date");
                 java.sql.Date charityDate = getDate();
 
                 psReturnRecord = conn.prepareStatement(returnRecordString);
@@ -607,17 +614,19 @@ public class ConsignmentStoreModel {
         String recordToCharity = "INSERT INTO charityRecords (record_id, consignor_id, artist, title, price, consignment_date, charity_date) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         //this method selects the record that is sent to charity from the records in the basement.
-        rs = selectRecord("basementRecords", recordID);
+        allSets.add(rsMoveRecordToCharity);
+        rsMoveRecordToCharity = selectRecord("basementRecords", recordID);
 
         //this try block puts the record in the charity table.
         try {
-            while(rs.next()) {
-                int consignorID = rs.getInt("consignor_id");
-                String artist = rs.getString("artist");
-                String title = rs.getString("title");
-                Float price = rs.getFloat("price");
-                java.sql.Date consignmentDate = rs.getDate("consignment_date");
+            while(rsMoveRecordToCharity.next()) {
+                int consignorID = rsMoveRecordToCharity.getInt("consignor_id");
+                String artist = rsMoveRecordToCharity.getString("artist");
+                String title = rsMoveRecordToCharity.getString("title");
+                Float price = rsMoveRecordToCharity.getFloat("price");
+                java.sql.Date consignmentDate = rsMoveRecordToCharity.getDate("consignment_date");
                 java.sql.Date charityDate = getDate();
+
                 psReturnRecord = conn.prepareStatement(recordToCharity);
                 allStatements.add(psReturnRecord);
                 psReturnRecord.setInt(1, recordID);
@@ -638,7 +647,11 @@ public class ConsignmentStoreModel {
             return false;
         }
 
-        deleteRecordFromTable("basementRecords", recordID);
+        boolean isDeleted = deleteRecordFromTable("basementRecords", recordID);
+        if (!isDeleted){
+            System.out.println("Could not delete record from basementRecords table.");
+            return false;
+        }
         return true;
     }
 
@@ -646,15 +659,17 @@ public class ConsignmentStoreModel {
     public boolean recordToBasement(int recordID) {
         String addRecordToBasement = "INSERT INTO basementRecords (record_id, consignor_id, artist, title, price, consignment_date, basement_date) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        rs = selectRecord("mainRoomRecords", recordID);
+        //selects the record to move to the basement.
+        allSets.add(rsMoveRecordToBasement);
+        rsMoveRecordToBasement = selectRecord("mainRoomRecords", recordID);
 
         try {
-            while(rs.next()) {
-                int consignorID = rs.getInt("consignor_id");
-                String artist = rs.getString("artist");
-                String title = rs.getString("title");
+            while(rsMoveRecordToBasement.next()) {
+                int consignorID = rsMoveRecordToBasement.getInt("consignor_id");
+                String artist = rsMoveRecordToBasement.getString("artist");
+                String title = rsMoveRecordToBasement.getString("title");
                 Float price = Float.parseFloat("1");
-                java.sql.Date consignmentDate = rs.getDate("consignment_date");
+                java.sql.Date consignmentDate = rsMoveRecordToBasement.getDate("consignment_date");
                 java.sql.Date basementDate = getDate();
 
                 psRecordToBasement = conn.prepareStatement(addRecordToBasement);
@@ -678,6 +693,7 @@ public class ConsignmentStoreModel {
             return false;
         }
 
+        //checks to make sure it has been deleted from the mainRoomRecord table.
         boolean isDeleted = deleteRecordFromTable("mainRoomRecords", recordID);
         if (!isDeleted){
             System.out.println("Could not delete record from mainRoomRecords");
@@ -686,6 +702,7 @@ public class ConsignmentStoreModel {
         return true;
     }
 
+    //this updates a specific record at a specific field according to a specific criteria.
     public boolean updateRecords(String table, String updatedField, Float amount, String searchField, int id){
         String updateString = "UPDATE " + table + " SET " + updatedField + " = ? WHERE " + searchField + " = ?";
 
@@ -693,14 +710,6 @@ public class ConsignmentStoreModel {
             Float totalPaymentsToDate = getConsignorPayments(id);
             amount = amount + totalPaymentsToDate;
         }
-
-        System.out.println("Table: " + table);
-        System.out.println("Updated Field: " + updatedField);
-        System.out.println("Amount: " + amount);
-        System.out.println("Search Field: " + searchField);
-        System.out.println("id: " + id);
-        System.out.println(updateString);
-        System.out.println("Amount: " + amount);
 
         try{
             psUpdateTable = conn.prepareStatement(updateString);

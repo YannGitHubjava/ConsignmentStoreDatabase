@@ -12,11 +12,15 @@ import java.sql.SQLException;
  * Created by Kevin on 4/21/2015.
  */
 public class BuyGUI extends ConsignmentStoreViewer{
+
     private JPanel buyGUIPanel;
+
     private JTable consignorsTable;
+
     private JTextField artistTextField;
     private JTextField priceTextField;
     private JTextField albumTitleTextField;
+
     private JButton exitButton;
     private JButton purchaseButton;
 
@@ -35,7 +39,7 @@ public class BuyGUI extends ConsignmentStoreViewer{
         pack();
         setVisible(true);
 
-
+        //sets up the table.
         resultSet = displayConsignorsViewer(storeController);
         stm = new StoreTableModel(myController, resultSet);
         consignorsTable.setModel(stm);
@@ -56,36 +60,49 @@ public class BuyGUI extends ConsignmentStoreViewer{
                 String artistText = artistTextField.getText();
                 String priceText = priceTextField.getText();
                 String albumTitle = albumTitleTextField.getText();
+
+                //this makes sure it only runs if all the fields have been filled out.
                 if (!artistText.isEmpty()&& !priceText.isEmpty() && !albumTitle.isEmpty()){
+
                     int row = consignorsTable.getSelectedRow();
+
+                    //checks to make sure that a consignor is selected.
                     boolean isRowSelected = ivIsRowSelected(row);
                     if(!isRowSelected){
                         JOptionPane.showMessageDialog(buyGUIPanel, "Please select a consignor.");
                         return;
                     }
-                    consignorID = getID("CONSIGNOR_ID", row, consignorsTable, resultSet);
-                    if(consignorID == NOT_AN_INT){
-                        JOptionPane.showMessageDialog(buyGUIPanel, "Please select a consignor NOT_AN_INT");
-                        return;
-                    }
 
+                    consignorID = getID("CONSIGNOR_ID", row, consignorsTable, resultSet);
+
+                    //run input validation on the title and artist name.
                     artistText = ivCheckNameForThe(artistText);
                     albumTitle = ivCheckNameForThe(albumTitle);
 
-
+                    //checks to see if the price is a double.
                     Double priceDouble = ivIsPriceDouble(priceText);
                     if(priceDouble == NOT_A_DOUBLE){
                         JOptionPane.showMessageDialog(buyGUIPanel, "This is not a price. Please try again.");
                         return;
                     }
 
+                    //checks to see if there are 5 copies in the store. Only allows 5 copies in the store.
                     boolean tooManyCopies = countSearchViewer(artistText, albumTitle, storeController);
                     if(!tooManyCopies){
                         JOptionPane.showMessageDialog(buyGUIPanel, "There are already 5 copies in the store. Cannot purchase another.");
                         return;
                     }
 
-                    buyRecordsViewer(artistText, albumTitle, priceDouble, consignorID, storeController);
+                    //attempts to buy the record chosen. Lets the user know if it failed.
+                    boolean recordPurchased = buyRecordsViewer(artistText, albumTitle, priceDouble, consignorID, storeController);
+                    if(recordPurchased){
+                        JOptionPane.showMessageDialog(buyGUIPanel, "Record purchased.");
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(buyGUIPanel, "Could not purchase record.");
+                        return;
+                    }
+
                     artistTextField.setText(null);
                     priceTextField.setText(null);
                     albumTitleTextField.setText(null);
@@ -95,6 +112,7 @@ public class BuyGUI extends ConsignmentStoreViewer{
                 }
             }
         });
+
         //closes the screen.
         exitButton.addActionListener(new ActionListener() {
             @Override

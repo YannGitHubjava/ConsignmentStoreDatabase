@@ -35,12 +35,6 @@ public class StoreTableModel extends AbstractTableModel{
 
     }
 
-    //Updates the results after something has occurred. Provided by Clara in the movies table program.
-    public void updateResultSet (ResultSet rs){
-        this.resultSet = rs;
-        setup(resultSet);
-    }
-
     //countsRows in the resultSet. Provided by Clara in movies table program.
     public void countRows(){
         rowCount = 0;
@@ -96,10 +90,11 @@ public class StoreTableModel extends AbstractTableModel{
     public Object getValueAt(int row, int col) {
 
         try {
-            //  System.out.println("get value at, row = " +row);
             resultSet.absolute(row + 1);
             Object o = resultSet.getObject(col + 1);
             String returnString;
+
+            //makes floats into proper cent values.
             if (resultSet.getMetaData().getColumnName(col + 1).equalsIgnoreCase("amount_owed") ||
                     resultSet.getMetaData().getColumnName(col + 1).equalsIgnoreCase("total_paid") ||
                     resultSet.getMetaData().getColumnName(col + 1).equalsIgnoreCase("price") ||
@@ -111,13 +106,14 @@ public class StoreTableModel extends AbstractTableModel{
                 return returnString;
 
             } else {
+
+                //adds dashes to a phone number.
                 if(resultSet.getMetaData().getColumnName(col + 1).equalsIgnoreCase("phone_number")){
                     String phoneNumber = o.toString();
                     StringBuilder sb = new StringBuilder(phoneNumber);
                     sb.insert(3, "-");
-                    sb.insert(6, "-");
+                    sb.insert(7, "-");
                     returnString = sb.toString();
-                    //System.out.println(returnString);
                     return returnString;
                 }
                 returnString = o.toString();

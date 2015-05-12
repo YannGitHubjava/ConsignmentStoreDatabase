@@ -331,6 +331,7 @@ public class CreateDatabase {
         }
     }
 
+    //adds test data to the basementRecords table.
     private void addBasementRecordsTestData() throws Exception {
         // Test data.
         if (statement == null) {
@@ -355,6 +356,7 @@ public class CreateDatabase {
         }
     }
 
+    //adds test data to the charityRecords table.
     private void addCharityRecordsTestData() throws Exception {
         // Test data.
         if (statement == null) {
@@ -377,6 +379,7 @@ public class CreateDatabase {
         }
     }
 
+    //adds test data to the sales table.
     private void addSalesRecordsTestData() throws Exception {
         // Test data.
         if (statement == null) {
@@ -398,6 +401,7 @@ public class CreateDatabase {
         }
     }
 
+    //adds test data to the soldRecords table.
     private void addSoldRecordsTestData() throws Exception {
         // Test data.
         if (statement == null) {
@@ -420,6 +424,7 @@ public class CreateDatabase {
         }
     }
 
+    //adds test data to the returnedRecords table.
     private void addReturnedRecordsTestData() throws Exception {
         // Test data.
         if (statement == null) {
@@ -441,7 +446,6 @@ public class CreateDatabase {
             throw sqle;
         }
     }
-
 
     //this adds some data to the consignor database so there's stuff to work with.
     private void addConsignorTestData() throws Exception {
@@ -471,7 +475,7 @@ public class CreateDatabase {
         }
     }
 
-//sets up the connection to the database.
+    //sets up the connection to the database.
     private void createConnection() throws Exception {
 
         try {
@@ -484,10 +488,6 @@ public class CreateDatabase {
             throw e;
         }
     }
-
-
-
-
 
     //from Clara's database programs. Closes out the ResultSets and PreparedStatements.
     public void cleanup() {

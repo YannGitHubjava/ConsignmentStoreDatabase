@@ -14,6 +14,7 @@ import java.sql.SQLException;
  * Created by Kevin on 5/4/2015.
  */
 public class BasementRecordsGUI extends ConsignmentStoreViewer{
+
     private JButton exitButton;
     private JButton sellButton;
 
@@ -50,6 +51,7 @@ public class BasementRecordsGUI extends ConsignmentStoreViewer{
             }
         });
 
+        //closes the GUI.
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -61,25 +63,28 @@ public class BasementRecordsGUI extends ConsignmentStoreViewer{
         sellButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
+                //makes sure a row is selected.
                 int row = basementRecordsTable.getSelectedRow();
                 if(row < 0) {
                     JOptionPane.showMessageDialog(basementRecordsGUIPanel, "You must select a record to sell!");
                     return;
                 }
-                System.out.println("Row: " + row);
+
+                //checks to make sure a record is selected.
                 recordID = getID("RECORD_ID", row, basementRecordsTable, resultSet);
-                if (recordID == NOT_AN_INT)
-                {
-                    JOptionPane.showMessageDialog(basementRecordsTable, "Could not sell this record. Please make sure you have selected an album.");
-                }
+
+                //sells the record, lets the user know what happened.
                 boolean basementSale = recordBasementSaleViewer(recordID, storeController);
                 if(basementSale){
                     JOptionPane.showMessageDialog(basementRecordsGUIPanel, "Record sold.");
                 }
                 else{
                     JOptionPane.showMessageDialog(basementRecordsGUIPanel, "Record not sold.");
+                    return;
                 }
 
+                //reset the table.
                 resultSet = displayBasementRecordsViewer(storeController);
                 stm = new StoreTableModel(storeController, resultSet);
                 basementRecordsTable.setModel(stm);

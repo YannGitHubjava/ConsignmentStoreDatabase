@@ -1,8 +1,6 @@
 package com.KevinMcClean;
 
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.LinkedList;
 
 public class ConsignmentStoreController {
     ConsignmentStoreModel model;
@@ -14,9 +12,8 @@ public class ConsignmentStoreController {
     }
 
     //this requests that the database buy a new record.
-    public void requestBuyRecords(String artist, String title, Double price, int consignorID){
-        model.buyRecord(consignorID, artist, title, price);
-
+    public boolean requestBuyRecords(String artist, String title, Double price, int consignorID){
+        return model.buyRecord(consignorID, artist, title, price);
     }
 
     //requests that the database shutdown any open connections.
@@ -24,11 +21,12 @@ public class ConsignmentStoreController {
         model.cleanup();
     }
 
+    //asks for a ResultSet of the consignors who are owed money.
     public ResultSet requestConsignorsOwed(){
-        resultSet = model.searchForConsignorOwed();
-        return resultSet;
+        return model.searchForConsignorOwed();
     }
 
+    //requests the a countSearch be done.
     public boolean requestCountSearch(String artist, String title){
         return model.countSearch(artist, title);
     }
@@ -80,21 +78,19 @@ public class ConsignmentStoreController {
         return recordToBasement;
     }
 
+    //this asks the database to perform a search.
     public ResultSet requestSearch(String table, String artist, String queryString){
         resultSet = model.search(table, artist, queryString);
         return resultSet;
     }
 
+    //this searches by album and by title.
     public ResultSet requestSearchByArtistAndTitle(String table, String artist, String title, String queryString){
         resultSet = model.searchByArtistAndTitle(table, artist, title, queryString);
         return resultSet;
     }
 
-    public ResultSet requestSearchByTitle(String table, String title){
-        resultSet = model.searchByTitle(table, title);
-        return resultSet;
-    }
-
+    //this requests a record update.
     public boolean requestUpdateRecords(String table, String updatedField, Float amount, String searchField, int consignorID){
         return model.updateRecords(table, updatedField, amount, searchField, consignorID);
     }
